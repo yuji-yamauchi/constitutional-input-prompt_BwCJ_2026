@@ -1,0 +1,35 @@
+# --- secrets / credentials ---
+.env
+.env.*
+*.key
+*.pem
+*.p12
+secrets/
+credentials*
+*service_role*
+*api_key*
+
+# --- dependencies / build ---
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+.cache/
+
+# --- editor / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- never publish ---
+# 内部の作業場から持ち込まない（作業用メモ・個人情報を含みうる物）
+_work/
+_private/
+private_*/
+*_internal*
+*.local.*
