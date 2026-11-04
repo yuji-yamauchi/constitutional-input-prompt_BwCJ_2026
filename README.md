@@ -4,6 +4,13 @@
 
 Built with Claude: Japan 2026 submission.
 
+> **On the name.** "Constitutional" here is not a model's constitution, and this is
+> not a prompting technique. It refers to the person's own: the right to remain the
+> author of what gets recorded about you — secured at the moment of **input**,
+> not corrected at the output.
+>
+> **名前について。** ここでの "Constitutional" は、モデルの憲法のことでも、プロンプトの技法のことでもありません。**本人のもの**です＝自分について記録されることの著者であり続ける権利を、出力の段階で直すのではなく、**入力の段階で守る**、という意味です。
+
 > **Status:** in progress. Content is being added during the hackathon window (Nov 2–8, 2026 JST).
 
 ---
