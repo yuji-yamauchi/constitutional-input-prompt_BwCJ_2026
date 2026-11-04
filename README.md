@@ -46,6 +46,25 @@ about them.
 
 ---
 
+## Who keeps using it after this week
+
+This is not a demo looking for users afterwards. Two groups are already there.
+
+- **The people at the employment-support service the author's company runs.**
+  They are first. Every one of them has records written about them by other
+  people — certificates, individual support plans, school reports — and almost
+  none of them hold those records themselves, in a form they can read.
+- **High-school and university students putting together a local community
+  magazine.** No disability involved. They gather material about themselves and
+  their town, keep the original untouched, decide what to hand to an editor, and
+  keep the receipt. The mechanism is the same one.
+
+The second group is the point. What this is for is **not collecting information
+about disability. It is being able to hold and control your own information.**
+That is what gives a person somewhere to stand when something goes wrong.
+
+---
+
 ## How to run it
 
 > ⚠️ Judges: this section is the entry point. It will be filled before submission.
@@ -95,8 +114,10 @@ Two tracks, and they are different:
 - **Images, logos, illustrations, the project name and other brand assets — All
   rights reserved.** Not reusable without permission.
 
-_The licence covering the prose — this README and the writing in the numbered
-directories — is not settled yet._
+- **Prose — CC BY-NC-ND 4.0.** This README and the writing in the numbered
+  directories may be shared with attribution, but not commercially and not in
+  modified form. Quoting with a citation is fine; a rewritten version standing in
+  for the original is not.
 
 ---
 
@@ -111,6 +132,10 @@ directories — is not settled yet._
 できあがるのは、本人の言葉による**意思表出文**です。本人が選び、**「わたす」**を押したときだけ、**写し**が外に出ます。受け取った側は**控え**を返し、控えは本人の手元に残ります。
 
 **このアプリは、本人を判定しません。** 点も、順位も、段階も、状態の評価も出しません。数えるのは、本人が選んだ**条件**であって、本人ではありません。
+
+**使い続ける人** — この一週間のあとに使う人を探す、という話ではありません。すでに二組います。**ひとつは、著者の会社が運営する就労移行支援の現場の利用者の方**。自分について他の人が書いた記録（診断書・個別支援計画・通知表）を、ほとんどの人が読める形で自分の手元に持っていません。**もうひとつは、地域の情報誌をつくる高校生・大学生**。障がいは関係ありません。自分と自分の町について材料を集め、原本はそのまま残し、編集の人に何を渡すかを自分で決め、控えを持つ——働きは同じです。
+
+二つ目が要点です。この器が要るのは、**障がいの情報を集めるためではなく、自分の情報を自分で持てるようにするため**です。それが、困ったことが起きたときに、その人が**立つ場所**になります。
 
 - **テーマ**: 1「あなたにしかない深さを。」
 - **動かし方**: 上の "How to run it" を参照（提出前に記入）
