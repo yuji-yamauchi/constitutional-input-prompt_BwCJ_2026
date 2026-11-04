@@ -95,7 +95,8 @@ Two tracks, and they are different:
 - **Images, logos, illustrations, the project name and other brand assets — All
   rights reserved.** Not reusable without permission.
 
-_The licence covering the prose in this README and in `docs/` is not settled yet._
+_The licence covering the prose — this README and the writing in the numbered
+directories — is not settled yet._
 
 ---
 
