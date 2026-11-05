@@ -1,0 +1,14 @@
+# 改行は LF に固定する（★Windows で clone しても同じ物が届くように）
+* text=auto eol=lf
+
+# 中身を触らない物（★改行の変換で壊れる）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.ico binary

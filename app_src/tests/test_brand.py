@@ -23,7 +23,7 @@ EXTRA_FORBIDDEN = ("診断します", "判定", "スコア", "レベル", "順�
 
 def _read(name):
     with open(os.path.join(STATIC, name), "rb") as f:
-        return f.read().decode("utf-8")
+        return f.read().decode("utf-8").replace("\r\n", "\n")   # Windows の checkout（CRLF）でも同じ比較に
 
 
 def _hits(text):
@@ -39,6 +39,71 @@ def _external_refs(text):
         if not m.group(2).startswith("data:"):
             bad.append(m.group(0))
     return bad
+
+
+BOARD_VARS = ("02-empty-tile", "02-filled-tile", "02-empty-scene", "02-filled-scene",
+              "03-seat-empty-tile", "03-seat-taken-tile", "03-seat-empty-scene", "03-seat-taken-scene")
+SEAT_TEXT = "いっしょに いる 人が います"
+
+
+def _board_var_count(css):
+    return len(re.findall(r"--img-board-[a-z0-9-]+\s*:", css))
+
+
+def _board_calls_outside(js, allowed):
+    """board( の呼び出しが、許す関数の本文の外に在れば、その位置の関数名を返す。"""
+    starts = [(m.start(), m.group(1)) for m in re.finditer(r"\n  (?:async )?function (\w+)\(", js)]
+    bad = []
+    for m in re.finditer(r"(?<![\w.])board\(", js):
+        owner = None
+        for pos, name in starts:
+            if pos < m.start():
+                owner = name
+        if owner not in allowed and owner != "board":
+            bad.append(owner)
+    return bad
+
+
+BOARD_SHA16 = {
+    "02-empty-tile": "02788eb1f115f637", "02-filled-tile": "455de888d2870978",
+    "02-empty-scene": "9868a9ef4dc8a68d", "02-filled-scene": "bd3cc30d65871168",
+    "03-seat-empty-tile": "b465bed74554e4b2", "03-seat-taken-tile": "0d66e82c7347de11",
+    "03-seat-empty-scene": "1500072bb627c1d3", "03-seat-taken-scene": "acd408a196e0510c",
+}
+
+
+def _board_payload_sha16(css):
+    """変数ごとの base64 を復号して sha256 の先頭 16 桁を返す（絵がそのままかを見る）。"""
+    import base64
+    import hashlib
+    out = {}
+    for m in re.finditer(r"--img-board-([a-z0-9-]+):\s*url\(\"data:image/png;base64,([A-Za-z0-9+/=]+)\"\)", css):
+        try:
+            raw = base64.b64decode(m.group(2), validate=True)
+        except Exception:
+            raw = b""
+        out[m.group(1)] = hashlib.sha256(raw).hexdigest()[:16]
+    return out
+
+
+def _seat_handler(js):
+    h = js[js.index("seatBtn.addEventListener('click'"):]
+    return h[:h.index("});")]
+
+
+def _seat_default_off(js):
+    return ("sel: 'renshu', seat: false };" in js) and ("ui.seat = j.seat === true;" in js) and ("      seat: false,\n" in js)
+
+
+def _board_has_text(js):
+    m = re.search(r"function board\(kind, state, sizeCls\) \{(.*?)\n  \}\n", js, re.S)
+    body = m.group(1) if m else ""
+    return bool(re.search(r"title|alt|aria-label|textContent|createTextNode|el\('[a-z]+', '[^']*', ", body))
+
+
+def _w_seat_ok(js):
+    m = re.search(r"'W-172': '([^']*)'", js)
+    return bool(m) and m.group(1) == SEAT_TEXT and len(re.findall(r"'W-172':", js)) == 1
 
 
 class N_Brand(unittest.TestCase):
@@ -121,6 +186,46 @@ class N_Brand(unittest.TestCase):
         self.assertNotRegex(body, "|".join(NAMES))
 
 
+    def test_h_boards_negative_controls(self):
+        css = _read("boards.css")
+        js = _read("app.js")
+        # 変数が 7 本・9 本の写しでは 8 本の検査が落ちる
+        seven = css.replace("--img-board-02-empty-tile:", "--x-02-empty-tile:")
+        self.assertEqual(_board_var_count(seven), 7)
+        nine = css + "\n:root { --img-board-99-extra: url(\"data:image/png;base64,AA\"); }\n"
+        self.assertEqual(_board_var_count(nine), 9)
+        self.assertEqual(_board_var_count(css), 8)
+        # img 要素を使った写しは検出される
+        bad_js = js.replace("el('span', 'board-img')", "el('img', 'board-img')")
+        self.assertNotEqual(bad_js, js)
+        self.assertRegex(bad_js, r"el\('img', 'board-img'\)")
+        self.assertNotRegex(js, r"el\('img', 'board-img'\)")
+        # data-figures の規則を消した写しは検出される
+        rule = r'body\[data-figures="0"\] \.board \{ display: none; \}'
+        self.assertIsNone(re.search(rule, css.replace('body[data-figures="0"] .board', 'body .board')))
+        self.assertTrue(re.search(rule, css))
+        # W-172 を促しの字に変えた写しは、字の走査が拾う
+        pushy = js.replace(SEAT_TEXT, "人に 話して みましょう")   # 分かち書きの促しの形
+        self.assertFalse(_w_seat_ok(pushy))
+        self.assertTrue(_hits(pushy))
+        self.assertTrue(_hits(js.replace(SEAT_TEXT, "人を よんで みましょう")))
+        # 切替の中で fetch を呼ぶ写し・既定を true にした写し・絵に title を付けた写し・base64 を 1 字変えた写しは落ちる
+        self.assertNotEqual(_seat_handler(js.replace("saveUi(); paintSeat();", "saveUi(); paintSeat(); fetch('/api/x');")), _seat_handler(js))
+        self.assertFalse(_seat_default_off(js.replace("sel: 'renshu', seat: false };", "sel: 'renshu', seat: true };")))
+        self.assertFalse(_seat_default_off(js.replace("ui.seat = j.seat === true;", "ui.seat = j.seat !== false;")))
+        self.assertTrue(_board_has_text(js.replace("b.appendChild(el('span', 'board-img'));", "b.appendChild(el('span', 'board-img')); b.title = 'x';")))
+        css = _read("boards.css")
+        i = css.index("base64,") + 200
+        flipped = css[:i] + ("A" if css[i] != "A" else "B") + css[i + 1:]
+        self.assertNotEqual(_board_payload_sha16(flipped), _board_payload_sha16(css))
+        self.assertEqual(_hits(js), [])
+        # board( を許さない関数から呼ぶ写しは検出される
+        moved = js.replace("function renderHome(", "function renderHome(", 1)
+        moved = re.sub(r"(\n  function renderHome\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", moved, count=1)
+        self.assertNotEqual(moved, js)
+        self.assertIn("renderHome", _board_calls_outside(moved, ("renderHikidashi", "renderSeiri", "loadRecordsInto")))
+
+
 class T_Brand(unittest.TestCase):
     def test_brand_css_loaded_before_app_css(self):
         html = _read("index.html")
@@ -157,6 +262,71 @@ class T_Brand(unittest.TestCase):
     def test_send_buttons_stay_orange(self):
         js = _read("app.js")
         self.assertEqual(len(re.findall(r"'btn-main btn-send", js)), 4)
+
+    def test_boards_css_eight_vars_and_clean(self):
+        css = _read("boards.css")
+        self.assertEqual(_board_var_count(css), 8)
+        self.assertEqual(len(re.findall(r"base64,", css)), 8)
+        for v in BOARD_VARS:
+            self.assertRegex(css, r"--img-board-%s:" % v)
+        self.assertIsNone(re.search(OLD_BRAND, css, re.I))
+        self.assertEqual(_external_refs(css), [])
+        self.assertEqual(_hits(css), [])
+        for ch in ("\u202a", "\u202e", "\u2066", "\u200b", "\ufeff"):
+            self.assertNotIn(ch, css)
+        self.assertRegex(css, r'body\[data-figures="0"\] \.board \{ display: none; \}')
+        self.assertRegex(_read("app.css"), r'body\[data-figures="0"\] \.board \{ display: none; \}')
+        self.assertNotIn("base64,", _read("app.css"))
+
+    def test_boards_css_link_order(self):
+        html = _read("index.html")
+        a = html.index('<link rel="stylesheet" href="brand.css">')
+        b = html.index('<link rel="stylesheet" href="boards.css">')
+        c = html.index('<link rel="stylesheet" href="app.css">')
+        self.assertLess(a, b)
+        self.assertLess(b, c)
+
+    def test_board_only_in_hikidashi_and_seiri(self):
+        js = _read("app.js")
+        self.assertEqual(_board_calls_outside(js, ("renderHikidashi", "renderSeiri", "loadRecordsInto")), [])
+        for name in ("renderHome", "renderRenshu", "renderWatasu", "renderKiroku"):
+            m = re.search(r"function %s\(" % name, js)
+            if not m:
+                continue
+            end = js.find("\n  }\n", m.start())
+            self.assertNotIn("board(", js[m.start():end], name)
+        m = re.search(r"function board\(kind, state, sizeCls\) \{(.*?)\n  \}\n", js, re.S)
+        self.assertIsNotNone(m)
+        body = m.group(1)
+        self.assertIn("if (!BRAND_FIGURES) { return null; }", body)
+        self.assertIn("setAttribute('aria-hidden', 'true')", body)
+        self.assertIn("el('span', 'board-img')", body)
+        self.assertNotRegex(body, r"el\('img'")
+        self.assertNotRegex(body, r"textContent|createTextNode|el\('[a-z]+', '[^']*', ")
+
+    def test_seat_word_and_toggle(self):
+        js = _read("app.js")
+        self.assertTrue(_w_seat_ok(js))
+        self.assertIn("'W-29': 'v0.3.2 / 2026-11-06'", js)
+        self.assertEqual(len(re.findall(r"seat-toggle", js)), 1)
+        self.assertRegex(js, r"seat-toggle'?, W\['W-172'\]|'linkbtn body-size seat-toggle', W\['W-172'\]")
+        self.assertIn("aria-pressed", js)
+        self.assertIn("seat-taken", js)
+        self.assertIn("seat-empty", js)
+        m = re.search(r"function saveUi\(\) \{[^\n]*lsSet\('cip_ui'[^\n]*seat: ui\.seat", js)
+        self.assertIsNotNone(m)
+        # 切替は端末に覚えるだけ＝押した所で通信しない・既定は「席が空」・絵に字を付けない
+        h = _seat_handler(js)
+        for bad in ("api(", "fetch(", "XMLHttpRequest", "sendBeacon", "S.chat"):
+            self.assertNotIn(bad, h)
+        self.assertTrue(_seat_default_off(js))
+        self.assertFalse(_board_has_text(js))
+        # ログアウトで切替を戻す
+        self.assertIn("ui.seat = false; saveUi();", js)
+
+    def test_boards_payload_is_the_delivered_picture(self):
+        got = _board_payload_sha16(_read("boards.css"))
+        self.assertEqual(got, BOARD_SHA16)
 
     def test_csp_allows_data_fonts(self):
         self.assertIn("font-src 'self' data:", httpkit.SECURITY_HEADERS["Content-Security-Policy"])

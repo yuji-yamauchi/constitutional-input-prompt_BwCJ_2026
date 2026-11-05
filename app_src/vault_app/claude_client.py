@@ -52,6 +52,7 @@ _PROMPT_HEADER_RE = re.compile(r"^# 版: (\S+) / 決めた日: (\d{4}-\d{2}-\d{2
 def split_prompt(raw):
     """指示の文の 1 行目（「# 版: v0.3 / 決めた日: YYYY-MM-DD」）を分ける。(版, 決めた日, 本文)。
     1 行目が無ければ (None, None, raw)。Claude へ送るのは本文だけ。"""
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")   # Windows の checkout（CRLF）でも同じ本文・同じ指紋にする
     m = _PROMPT_HEADER_RE.match(raw)
     if not m:
         return None, None, raw

@@ -1,6 +1,6 @@
 /* app.js - 器の画面。外への通信は自分の配信元の /api だけ。
    字は textContent で入れる（HTML として解かない）。差し込む字は bdi で包む。
-   端末の保存は画面の設定 4 つ（左を畳んだか・右を畳んだか・右の幅・右の選び）だけ。 */
+   端末の保存は画面の設定 5 つ（左を畳んだか・右を畳んだか・右の幅・右の選び・③の「いっしょに いる 人」の切替）だけ。 */
 /* 置き物の絵（キャラの絵と名）の入り切り。false にすると絵も名の字も全部出ない（body に data-figures="0" が付き、CSS でも隠す）。 */
 var BRAND_FIGURES = true;
 
@@ -29,7 +29,7 @@ var BRAND_FIGURES = true;
     'W-26': '左の帯を とじる・ひらく',
     'W-27a': 'ログイン中',
     'W-28a': 'ログアウト',
-    'W-29': 'v0.3.1 / 2026-11-05',
+    'W-29': 'v0.3.2 / 2026-11-06',
     'W-31': '本文へスキップ',
     'W-32a': 'れんしゅう',
     'W-32b': 'じぶんの記録',
@@ -111,7 +111,8 @@ var BRAND_FIGURES = true;
     'W-162a': '版: ',
     'W-162b': ' ・ 決めた日: ',
     'W-163': '指示の 全文を いま 読みこめません。',
-    'W-171': 'とじる'
+    'W-171': 'とじる',
+    'W-172': 'いっしょに いる 人が います'
   };
 
   /* 文言表に無い字（仮置き） */
@@ -330,6 +331,14 @@ var BRAND_FIGURES = true;
     f.appendChild(el('span', 'fig-name', FIG_NAMES[who]));
     return f;
   }
+  /* 見た目の層: ②③の場面と札（背景の絵だけ・字なし）。kind=02/03, state=empty|filled|seat-empty|seat-taken */
+  function board(kind, state, sizeCls) {
+    if (!BRAND_FIGURES) { return null; }
+    var b = el('div', 'board board-' + kind + '-' + state + ' ' + sizeCls);
+    b.setAttribute('aria-hidden', 'true');
+    b.appendChild(el('span', 'board-img'));
+    return b;
+  }
   function emptyWithFigure(who, sizeCls, text) {
     var p = line(text);
     var f = figure(who, sizeCls);
@@ -456,6 +465,7 @@ var BRAND_FIGURES = true;
       drafts: { renshu: '', seiri: '', kako: '' },
       sending: false,
       urls: [],
+      seat: false,
       stmt: newStmt(),
       recNames: {},
       hand: { stmtId: null, sel: {} },
@@ -468,7 +478,7 @@ var BRAND_FIGURES = true;
   }
   function copy(o) { return JSON.parse(JSON.stringify(o)); }
 
-  var ui = { leftMin: false, railMin: false, railW: 0, sel: 'renshu' };
+  var ui = { leftMin: false, railMin: false, railW: 0, sel: 'renshu', seat: false };
   var idleTimer = null, lastPing = 0, bootBusy = false;
 
   function api(method, path, body, ms) {
@@ -549,6 +559,7 @@ var BRAND_FIGURES = true;
   async function doLogout(expired) {
     try { await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }); } catch (e) { /* 閉じるだけ */ }
     if (!S.loggedIn) { return; }
+    ui.seat = false; saveUi();   /* 同席の切替は端末に残さない（次に開く人のため） */
     wipeScreen();
     showGate(!!expired);
   }
@@ -642,9 +653,10 @@ var BRAND_FIGURES = true;
       ui.leftMin = j.leftMin === true; ui.railMin = j.railMin === true;
       ui.railW = (typeof j.railW === 'number' && j.railW >= 300) ? j.railW : 0;
       ui.sel = typeof j.sel === 'string' ? j.sel : 'renshu';
+      ui.seat = j.seat === true;
     } catch (e) { /* 既定のまま */ }
   }
-  function saveUi() { lsSet('cip_ui', JSON.stringify({ leftMin: ui.leftMin, railMin: ui.railMin, railW: ui.railW, sel: ui.sel })); }
+  function saveUi() { lsSet('cip_ui', JSON.stringify({ leftMin: ui.leftMin, railMin: ui.railMin, railW: ui.railW, sel: ui.sel, seat: ui.seat })); }
   function chatOnly() { return isSmall() && ui.leftMin && !ui.railMin; }
   function applyLayout() {
     $('left').classList.toggle('side-min', ui.leftMin);
@@ -961,6 +973,10 @@ var BRAND_FIGURES = true;
      ================================================================ */
   function renderHikidashi(host) {
     var sec = section('b');
+    var scene2 = el('div', 'board-slot');
+    sec.appendChild(scene2);
+    var scene2First = board('02', 'empty', 'board-scene');   /* 先に空の場面を出す（読み込み後に数で差し替え＝段がずれない） */
+    if (scene2First) { scene2.appendChild(scene2First); }
     sec.appendChild(el('div', 'note calm', noteKako));
     // 記録を入れる
     var c1 = card(W['W-100']);
@@ -983,7 +999,16 @@ var BRAND_FIGURES = true;
     sec.appendChild(c1);
     // 入れた記録
     var c2 = card(L.insertedTitle);
+    var tile2 = el('div', 'fig-slot');
+    c2.appendChild(tile2);
     var listBox = el('div'); c2.appendChild(listBox);
+    listBox.onCount = function (n) {
+      clear(scene2); clear(tile2);
+      var sc = board('02', n ? 'filled' : 'empty', 'board-scene');
+      if (sc) { scene2.appendChild(sc); }
+      var tl = n ? board('02', 'filled', 'board-120') : null;
+      if (tl) { tile2.appendChild(tl); }
+    };
     sec.appendChild(c2);
     // 写真なしの控え
     var c3 = card(W['W-106']);
@@ -1068,7 +1093,18 @@ var BRAND_FIGURES = true;
     catch (e) { if (S.loggedIn && document.body.contains(box)) { clear(box); box.appendChild(el('div', 'err', W['W-85'])); } return; }
     if (!S.loggedIn || !document.body.contains(box)) { return; }
     clear(box);
-    if (!rows.length) { box.appendChild(emptyWithFigure('kiro', 'fig-72', W['W-83'])); return; }
+    if (box.onCount) { box.onCount(rows.length); }
+    if (!rows.length) {
+      var et = board('02', 'empty', 'board-160');
+      if (!et) { box.appendChild(emptyWithFigure('kiro', 'fig-72', W['W-83'])); return; }
+      var erow = el('div', 'empty-fig');
+      add(erow, et);
+      var ek = figure('kiro', 'fig-72');
+      if (ek) { erow.appendChild(ek); }
+      erow.appendChild(line(W['W-83']));
+      box.appendChild(erow);
+      return;
+    }
     rows.forEach(function (r) { box.appendChild(recordItem(r, box)); });
   }
 
@@ -1432,13 +1468,39 @@ var BRAND_FIGURES = true;
 
   function renderSeiri(host) {
     var sec = section('c');
+    var seatScene = el('div', 'board-slot');
+    sec.appendChild(seatScene);
+    var seatTile = null;
+    S.seat = ui.seat;
     var info = el('div', 'status'); info.setAttribute('role', 'status');
     var c = card(null);
     var ch = cardHead(L.stTitle);
+    var seatBtn = el('button', 'linkbtn body-size seat-toggle', W['W-172']);
+    seatBtn.type = 'button';
+    seatBtn.setAttribute('aria-pressed', S.seat ? 'true' : 'false');
+    function paintSeat() {
+      var st = S.seat ? 'seat-taken' : 'seat-empty';
+      clear(seatScene);
+      var sc = board('03', st, 'board-scene');
+      if (sc) { seatScene.appendChild(sc); }
+      if (seatTile) {
+        clear(seatTile);
+        var tl = board('03', st, 'board-160');
+        if (tl) { seatTile.appendChild(tl); }
+      }
+    }
+    seatBtn.addEventListener('click', function () {
+      S.seat = !S.seat; ui.seat = S.seat;
+      seatBtn.setAttribute('aria-pressed', S.seat ? 'true' : 'false');
+      saveUi(); paintSeat();
+    });
+    ch.appendChild(seatBtn);
     ch.appendChild(linkbtn(L.stNew, function () { S.stmt = newStmt(); showView('seiri', true); }, 'body-size'));
     c.appendChild(ch);
     var stFig = el('div', 'fig-slot');
+    stFig.onEmpty = function () { seatTile = el('div'); stFig.appendChild(seatTile); paintSeat(); };
     c.appendChild(stFig);
+    paintSeat();
     var fieldsBox = el('div');
     c.appendChild(fieldsBox);
     var restoreRow = el('div', 'btnrow');
@@ -1506,6 +1568,7 @@ var BRAND_FIGURES = true;
     if (!S.loggedIn || !document.body.contains(box)) { return; }
     if (!rows.length) {
       cardEl.hidden = true;
+      if (figSlot.onEmpty) { figSlot.onEmpty(); }
       var kf = figure('koto', 'fig-56');
       if (kf) { figSlot.appendChild(kf); }
       return;

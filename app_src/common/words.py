@@ -41,6 +41,7 @@ FORBIDDEN_NUDGES = (
     "がんばろう", "がんばりましょう",
     "未読", "催促", "連続", "日連続",
     "してみよう", "してみましょう",
+    "てみよう", "てみましょう", "でみよう", "でみましょう",   # 「話してみましょう」「読んでみましょう」の形も拾う
     "おすすめ", "通知",
 )
 
@@ -80,21 +81,53 @@ def scan(text, kinds=None):
         raise ValueError("知らない kind: %s" % ",".join(sorted(unknown)))
     body = _mask_exceptions(text)
     hits = []
+    for b, posmap in _variants(body):
+        hits.extend(_scan_body(b, posmap, want))
+    seen = set()
+    uniq = []
+    for h in hits:
+        if h not in seen:
+            seen.add(h)
+            uniq.append(h)
+    hits = uniq
+    hits.sort(key=lambda h: (h[2], h[0], h[1]))
+    return hits
+
+
+def _variants(body):
+    """走査する字の変種＝(字, 位置の対応表)。元の字と、空白（半角・全角）を抜いた字の 2 つ。
+    分かち書きの文（「話して みましょう」）でも禁じる言い方を拾うため。位置は元の字の位置に戻す。"""
+    yield body, None
+    out = []
+    idx = []
+    for i, ch in enumerate(body):
+        if ch in (" ", "\u3000"):
+            continue
+        out.append(ch)
+        idx.append(i)
+    collapsed = "".join(out)
+    if collapsed != body:
+        yield collapsed, idx
+
+
+def _scan_body(body, posmap, want):
+    def orig(p):
+        return p if posmap is None else posmap[p]
+    hits = []
     if KIND_VERB in want:
         for w in FORBIDDEN_VERBS:
-            hits.extend((KIND_VERB, w, p) for p in _find_all(body, w))
+            hits.extend((KIND_VERB, w, orig(p)) for p in _find_all(body, w))
     if KIND_GRADE in want:
         for w in FORBIDDEN_GRADES:
-            hits.extend((KIND_GRADE, w, p) for p in _find_all(body, w))
+            hits.extend((KIND_GRADE, w, orig(p)) for p in _find_all(body, w))
         for rx in FORBIDDEN_GRADE_PATTERNS:
-            hits.extend((KIND_GRADE, m.group(0), m.start()) for m in rx.finditer(body))
+            hits.extend((KIND_GRADE, m.group(0), orig(m.start())) for m in rx.finditer(body))
     if KIND_NUDGE in want:
         for w in FORBIDDEN_NUDGES:
-            hits.extend((KIND_NUDGE, w, p) for p in _find_all(body, w))
+            hits.extend((KIND_NUDGE, w, orig(p)) for p in _find_all(body, w))
     if KIND_UNDECIDED in want:
         for w in UNDECIDED:
-            hits.extend((KIND_UNDECIDED, w, p) for p in _find_all(body, w))
-    hits.sort(key=lambda h: (h[2], h[0], h[1]))
+            hits.extend((KIND_UNDECIDED, w, orig(p)) for p in _find_all(body, w))
     return hits
 
 

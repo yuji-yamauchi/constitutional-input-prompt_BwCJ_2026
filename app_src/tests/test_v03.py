@@ -34,16 +34,21 @@ KNOWN_LISTENER_SHA16 = "a67696839a10e345"
 KNOWN_ARRANGER_SHA16 = "5b9c2cdcae8b5954"
 KNOWN_READER_SHA16 = "a81ac3e7595c38c2"
 KNOWN_PROMPT_SHA256 = {
-    "reader": "4cd0a109bdfebb8de94e0c2c72a2e71706b103001a6746de5cba1389b4fc080a",
-    "listener": "e15bd602d7a9b041cbd65baa6bc75a37983e589c397abff9916d8a73198ebeaa",
-    "arranger": "5148a6e9d930d43606dfaa2b2ace84bcc66a243302045ce05ced4faad75aa1df",
+    "reader": "c9f8adfbe844da466dae602154cd18395e23822f31b70f0ade8ab14c8c322ea0",
+    "listener": "d6e318da8238034cda1b647c4dab29026b23715a65f85571a8f59a0978760352",
+    "arranger": "b49673ecbd5ba8e414b366f07de25c46f86894bac24c1bbe2e3432582b4f743f",
 }
 LAW_INDEX = [{"id": "x-1", "law_name": "法A", "article": "第1条"}]
 
 
+def _text(b):
+    """repo のファイルの字。Windows の checkout（CRLF）でも同じ比較ができるよう改行をそろえる。"""
+    return b.decode("utf-8").replace("\r\n", "\n")
+
+
 def _read(rel):
     with open(os.path.join(STATIC, rel), "rb") as f:
-        return f.read().decode("utf-8")
+        return _text(f.read())
 
 
 def _tree_bytes(root):
@@ -479,8 +484,8 @@ class T_PromptHeader(_Base):
     def test_files_start_with_the_header_line(self):
         for kind in ("reader", "listener", "arranger"):
             with open(os.path.join(PROMPTS, kind + ".txt"), "rb") as f:
-                first = f.read().decode("utf-8").split("\n", 1)[0]
-            self.assertEqual(first, "# 版: v0.3 / 決めた日: 2026-11-05")
+                first = _text(f.read()).split("\n", 1)[0]
+            self.assertEqual(first, "# 版: v0.3.1 / 決めた日: 2026-11-05")
 
     def test_split_prompt(self):
         self.assertEqual(claude_client.split_prompt("# 版: v0.3 / 決めた日: 2026-11-05\n本文です\n"), ("v0.3", "2026-11-05", "本文です\n"))
@@ -494,12 +499,12 @@ class T_PromptHeader(_Base):
         self.assertEqual(st, 200)
         self.assertEqual(len(j["items"]), 3)
         for it in j["items"]:
-            self.assertEqual(it["version"], "v0.3")
+            self.assertEqual(it["version"], "v0.3.1")
             self.assertEqual(it["decided_on"], "2026-11-05")
             self.assertFalse(it["text"].startswith("# 版"))
             with open(os.path.join(PROMPTS, it["name"] + ".txt"), "rb") as f:
-                raw = f.read().decode("utf-8")
-            self.assertEqual("# 版: v0.3 / 決めた日: 2026-11-05\n" + it["text"], raw)
+                raw = _text(f.read())
+            self.assertEqual("# 版: v0.3.1 / 決めた日: 2026-11-05\n" + it["text"], raw)
 
     def test_falls_back_to_the_old_way_without_the_line(self):
         d = self.tmpdir()
@@ -526,7 +531,7 @@ class T_TurnLabel(_Base):
         st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。"})
         self.assertEqual(st, 200)
         self.assertEqual(j["model"], "label-test-model")
-        self.assertEqual(j["prompt_version"], "v0.3")
+        self.assertEqual(j["prompt_version"], "v0.3.1")
         self.assertIs(j["demo"], True)
         self.assertEqual(j["readback"], "朝です。")
 
@@ -569,16 +574,16 @@ class T_LightMotif(unittest.TestCase):
 class T_SkipLinkFromTable(unittest.TestCase):
     def test_skip_text_is_in_the_table_not_in_the_html(self):
         with open(os.path.join(APP_ROOT, "receiver_app", "static", "index.html"), "rb") as f:
-            html = f.read().decode("utf-8")
+            html = _text(f.read())
         with open(os.path.join(APP_ROOT, "receiver_app", "static", "port.js"), "rb") as f:
-            js = f.read().decode("utf-8")
+            js = _text(f.read())
         self.assertIn('data-j="J-skip"></a>', html)
         self.assertNotIn("本文へスキップ", html)
         self.assertIn("'J-skip': '本文へスキップ'", js)
 
     def test_emoji_range_in_the_api_test_is_written_with_escapes(self):
         with open(os.path.join(APP_ROOT, "tests", "test_vault_api.py"), "rb") as f:
-            src = f.read().decode("utf-8")
+            src = _text(f.read())
         line = [l for l in src.split("\n") if "emoji = re.compile" in l][0]
         self.assertTrue(all(ord(ch) < 0x2000 for ch in line), line)
         self.assertIn("\\u2600-\\u27bf", line)

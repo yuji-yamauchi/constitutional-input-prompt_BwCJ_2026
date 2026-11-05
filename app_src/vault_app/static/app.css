@@ -340,6 +340,16 @@ body[data-figures="0"] .figure { display: none !important; }
 .empty-wrap .empty-s { margin: 0; }
 .fig-slot { margin: 0 0 8px; }
 .fig-slot:empty { display: none; }
+.board-slot:empty { display: none; }
+.board-scene { width: 100%; max-width: 600px; aspect-ratio: 600 / 314; margin: 0 auto 12px; }
+.board-160 { width: 160px; height: 160px; flex: 0 0 auto; }
+.board-120 { width: 120px; height: 120px; flex: 0 0 auto; }
+body[data-figures="0"] .board { display: none; }
+.seat-toggle { margin-left: auto; }
+.seat-toggle[aria-pressed="true"] { background: var(--mint); color: #3C3024; text-decoration: none; padding: 2px 8px; border-radius: 8px; }
+@media (max-width: 640px) {
+  .board-160 { width: 120px; height: 120px; }
+}
 
 /* ---------- 動きを減らす設定（5.11） ---------- */
 @media (prefers-reduced-motion: reduce) {
