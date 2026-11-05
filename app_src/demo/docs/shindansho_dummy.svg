@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" font-family="sans-serif" fill="#000">
+<rect width="794" height="1123" fill="#fff"/>
+<rect x="40" y="40" width="714" height="1043" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="397" y="110" font-size="30" text-anchor="middle" font-weight="bold">診断書（自作のダミー）</text>
+<line x1="60" y1="135" x2="734" y2="135" stroke="#000" stroke-width="1"/>
+<text x="70" y="190" font-size="20" text-anchor="start" font-weight="normal">氏名: もも さん</text>
+<text x="70" y="230" font-size="18" text-anchor="start" font-weight="normal">生年月日: 0000年 00月 00日</text>
+<line x1="60" y1="260" x2="734" y2="260" stroke="#000" stroke-width="1"/>
+<text x="70" y="360" font-size="18" text-anchor="start" font-weight="normal">所見: （省略）</text>
+<text x="70" y="410" font-size="18" text-anchor="start" font-weight="normal">必要な 配慮: （省略）</text>
+<line x1="60" y1="440" x2="734" y2="440" stroke="#000" stroke-width="1"/>
+<text x="70" y="500" font-size="18" text-anchor="start" font-weight="normal">発行日: 0000年 00月 00日</text>
+<text x="70" y="550" font-size="18" text-anchor="start" font-weight="normal">医療機関名: ぶどう クリニック（ダミー）</text>
+<text x="70" y="600" font-size="18" text-anchor="start" font-weight="normal">医師名: （省略）</text>
+<text x="70" y="650" font-size="18" text-anchor="start" font-weight="normal">電話: 090-0000-0000</text>
+<text x="754" y="1087" font-size="13" text-anchor="end">自作のダミー（デモ用）</text>
+</svg>

@@ -1,0 +1,12 @@
+{
+ "id": "example-0001",
+ "law_name": "（法令名＝取得時に原文で確定）",
+ "article": "（条番号＝取得時に原文で確定）",
+ "text_verbatim": "（原文の写し＝取得時に e-Gov から）",
+ "source_name": "e-Gov 法令検索",
+ "retrieved_on": "0000-00-00",
+ "retrieved_by": "（取得した人の役）",
+ "set_version": "statutes-example",
+ "verified_by_person": false,
+ "note": "形の見本。読み込まれない。"
+}

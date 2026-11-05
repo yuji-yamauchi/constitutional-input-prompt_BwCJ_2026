@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>受け口（参照用）</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/port.css">
+<script src="/port.js" defer></script>
+</head>
+<body data-state="boot">
+<a class="skip" href="#main" data-j="J-skip"></a>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-text">
+    <h1 class="hdr-title" data-j="J-12">受け口（参照用）</h1>
+    <span class="hdr-crumb" id="crumb"></span>
+  </div>
+  <button type="button" class="pill" id="btn-logout" data-j="J-14" hidden></button>
+</header>
+<div class="note band" id="band" data-j="J-13"></div>
+
+<main class="main" id="main" tabindex="-1">
+
+  <!-- (a) ログイン -->
+  <section id="v-login" data-view="login" hidden>
+    <div class="gate">
+      <h2 class="gate-title" data-j="J-01"></h2>
+      <p class="gate-desc" data-j="J-02"></p>
+      <p class="gate-timeout" id="login-timeout" data-j="J-08" hidden></p>
+      <form id="login-form" autocomplete="on">
+        <label for="pw" data-j="J-03"></label>
+        <input id="pw" name="password" type="password" autocomplete="current-password">
+        <div class="gate-err" id="login-err" role="alert" hidden></div>
+        <button type="submit" class="btn btn-mint wide" id="btn-login" data-j="J-04"></button>
+      </form>
+      <p class="tiny" data-j="J-05"></p>
+    </div>
+  </section>
+
+  <!-- (b) 受けた束の一覧 -->
+  <section id="v-list" data-view="list" hidden>
+    <div class="card">
+      <div class="card-head">
+        <h2 tabindex="-1" id="h-list" data-j="J-20"></h2>
+        <div class="btnrow">
+          <button type="button" class="btn btn-second" id="btn-refresh" data-j="J-21"></button>
+          <button type="button" class="btn btn-mint" id="btn-pair" data-j="J-22"></button>
+        </div>
+      </div>
+      <div class="status" id="list-status" role="status"></div>
+      <div id="list-rows"></div>
+      <p class="tiny" id="list-more" data-j="J-28" hidden></p>
+    </div>
+  </section>
+
+  <!-- (c) 束を読む -->
+  <section id="v-bundle" data-view="bundle" hidden>
+    <div class="status" id="bundle-status" role="status"></div>
+    <div id="bundle-body"></div>
+  </section>
+
+  <!-- (d) 返事を書く -->
+  <section id="v-reply" data-view="reply" hidden>
+    <div class="card">
+      <h2 tabindex="-1" id="h-reply-ctx" data-j="J-50"></h2>
+      <div id="reply-ctx"></div>
+      <details class="fold" id="reply-fold">
+        <summary data-j="J-51"></summary>
+        <div id="reply-fold-body"></div>
+      </details>
+    </div>
+    <div class="card">
+      <label class="field-label" for="reply-text" data-j="J-52"></label>
+      <textarea class="field" id="reply-text" autocomplete="off" spellcheck="false"></textarea>
+      <div class="attest">
+        <input type="checkbox" id="reply-attest">
+        <label for="reply-attest" data-j="J-53"></label>
+      </div>
+      <p class="note" data-j="J-54"></p>
+      <div class="reasons" id="reply-reasons" role="status"></div>
+      <div class="err" id="reply-err" role="alert" hidden></div>
+      <div class="btnrow">
+        <button type="button" class="btn btn-main" id="btn-send" data-j="J-55" disabled></button>
+        <button type="button" class="linkbtn body-size" id="btn-reply-back" data-j="J-62"></button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- (e) つなぐ合言葉 -->
+<div class="overlay" id="modal-pair" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pair-title">
+    <div class="modal-head">
+      <h2 id="pair-title" data-j="J-70"></h2>
+      <button type="button" class="modal-close" id="pair-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p data-j="J-71"></p>
+      <div class="btnrow"><button type="button" class="btn btn-mint" id="btn-pair-make" data-j="J-72"></button></div>
+      <div class="err" id="pair-err" role="alert" hidden></div>
+      <div id="pair-result" hidden>
+        <div class="code-box" id="pair-code"></div>
+        <div class="btnrow">
+          <button type="button" class="btn btn-second" id="btn-pair-copy" data-j="J-75"></button>
+        </div>
+        <p class="small" id="pair-copy-msg" role="status"></p>
+        <p id="pair-expiry"></p>
+        <p class="note" data-j="J-74"></p>
+      </div>
+      <h3 class="sub" data-j="J-78"></h3>
+      <div id="pair-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 原本を大きく見る面 -->
+<div class="overlay" id="modal-zoom" hidden>
+  <div class="modal zoom" role="dialog" aria-modal="true" aria-labelledby="zoom-title">
+    <div class="modal-head">
+      <h2 id="zoom-title"></h2>
+      <button type="button" class="modal-close" id="zoom-close">&times;</button>
+    </div>
+    <div class="modal-body" id="zoom-body"></div>
+  </div>
+</div>
+
+</body>
+</html>

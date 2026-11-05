@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" font-family="sans-serif" fill="#000">
+<rect width="794" height="1123" fill="#fff"/>
+<rect x="40" y="40" width="714" height="1043" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="397" y="110" font-size="30" text-anchor="middle" font-weight="bold">通知表（自作のダミー）</text>
+<line x1="60" y1="135" x2="734" y2="135" stroke="#000" stroke-width="1"/>
+<text x="70" y="190" font-size="20" text-anchor="start" font-weight="normal">氏名: もも さん</text>
+<text x="70" y="230" font-size="18" text-anchor="start" font-weight="normal">学年: （ダミー）</text>
+<text x="70" y="270" font-size="18" text-anchor="start" font-weight="normal">期間: 0000年 0月 〜 0000年 0月</text>
+<line x1="60" y1="300" x2="734" y2="300" stroke="#000" stroke-width="1"/>
+<text x="80" y="350" font-size="18" text-anchor="start" font-weight="bold">きょうか</text>
+<text x="300" y="350" font-size="18" text-anchor="start" font-weight="bold">ようす</text>
+<text x="80" y="410" font-size="18" text-anchor="start" font-weight="normal">こくご</text>
+<text x="300" y="410" font-size="18" text-anchor="start" font-weight="normal">字を 大きな 声で 読んだ。</text>
+<line x1="70" y1="430" x2="724" y2="430" stroke="#000" stroke-width="1"/>
+<text x="80" y="470" font-size="18" text-anchor="start" font-weight="normal">さんすう</text>
+<text x="300" y="470" font-size="18" text-anchor="start" font-weight="normal">ブロックで たし算を した。</text>
+<line x1="70" y1="490" x2="724" y2="490" stroke="#000" stroke-width="1"/>
+<text x="80" y="530" font-size="18" text-anchor="start" font-weight="normal">ずがこうさく</text>
+<text x="300" y="530" font-size="18" text-anchor="start" font-weight="normal">もも色の 花を かいた。</text>
+<line x1="70" y1="550" x2="724" y2="550" stroke="#000" stroke-width="1"/>
+<text x="80" y="590" font-size="18" text-anchor="start" font-weight="normal">たいいく</text>
+<text x="300" y="590" font-size="18" text-anchor="start" font-weight="normal">たのしく とりくんだ。</text>
+<line x1="70" y1="610" x2="724" y2="610" stroke="#000" stroke-width="1"/>
+<text x="70" y="680" font-size="18" text-anchor="start" font-weight="normal">出席: （省略）</text>
+<text x="70" y="720" font-size="18" text-anchor="start" font-weight="normal">先生より: （省略）</text>
+<text x="70" y="780" font-size="16" text-anchor="start" font-weight="normal">連絡先: 090-0000-0000</text>
+<text x="754" y="1087" font-size="13" text-anchor="end">自作のダミー（デモ用）</text>
+</svg>

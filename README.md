@@ -74,15 +74,49 @@ That is what gives a person somewhere to stand when something goes wrong.
 
 ## How to run it
 
-> ⚠️ Judges: this section is the entry point. It will be filled before submission.
+**Python 3.10 or newer. Nothing else.** No `pip install`, no build step, no network
+at startup. Two small servers run locally and listen on `127.0.0.1` only; a request
+whose `Host` is not a local name is refused.
 
-```
-# TBD
+Run every command from the top of this repository.
+
+```bash
+# 1. the receiving side (a person reads and replies here; Claude is never called)
+python3 -m app_src.receiver_app.main          # http://127.0.0.1:8766/
+
+# 2. the tool itself (a different terminal)
+python3 -m app_src.vault_app.main             # http://127.0.0.1:8765/
 ```
 
-- Requirements: _TBD_
-- Setup: _TBD_
-- Try it: _TBD_
+Both ask for a passphrase, set through environment variables:
+
+```bash
+export VAULT_PASSPHRASE="your passphrase"     # the person's entrance
+export PORT_PASSPHRASE="16+ characters"       # the receiving side
+export ANTHROPIC_API_KEY="your key"           # optional — see below
+```
+
+On Windows use `$env:NAME = "..."` (PowerShell) or `set NAME=...` (Command Prompt).
+
+**Without a key it still works.** Set `CIP_DEMO_MODE=1` and the tool answers from
+recorded responses instead of calling Claude. A banner stays on screen the whole
+time saying so — the screen never claims a recorded answer is a live one.
+
+**Connecting the two:** on the receiving side press *issue a connecting phrase*
+(single use, 24 hours), then enter it in the tool under *hand to a person*. After
+that, copies the person hands over arrive on the receiving side, and a reply comes
+back only when the person presses *check for replies*.
+
+```bash
+python3 -m app_src.tools.unpack_demo          # writes the dummy documents as PNG
+python3 -B -m app_src.tests.run_all           # the tests: negatives first, then the rest
+```
+
+`app_src/README_run.md` lists every environment variable, where files are stored,
+and how to delete everything.
+
+**The tests run the deliberately broken inputs first.** A detector that has not
+been seen to fail is not evidence that anything passed.
 
 ---
 
@@ -119,7 +153,11 @@ Two tracks, and they are different:
 
 - **Source code — MIT.** See [LICENSE](LICENSE). Copyright (c) 2026 yuji-yamauchi.
 - **Images, logos, illustrations, the project name and other brand assets — All
-  rights reserved.** Not reusable without permission.
+  rights reserved.** Not reusable without permission. The illustrations and
+  characters are the property of **合同会社HOHOHO (HOHOHO LLC)** and are used here
+  with permission granted on 2026-11-02.
+- **The bundled typeface** is Zen Maru Gothic, under the SIL Open Font License 1.1.
+  The licence text ships with it at `app_src/vault_app/static/FONT_LICENSE_OFL.txt`.
 
 - **Prose — CC BY-NC-ND 4.0.** This README and the writing in the numbered
   directories may be shared with attribution, but not commercially and not in

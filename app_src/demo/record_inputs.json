@@ -1,0 +1,17 @@
+{
+ "note": "tools/record_demo.py の入力。自作のダミーの文だけ。conditions の鍵と値は画面の既定と同じ。",
+ "listener": [
+  {"text": "きょうは 朝 早く 目が さめた。",
+   "conditions": {"amount": "ふつう", "split": "文ごと", "ease": "やさしい", "length": "みじかく", "input": "文字"}},
+  {"text": "お昼に パンを 食べて、少し 外を 歩いた。",
+   "conditions": {"amount": "すくなめ", "split": "区切らない", "ease": "ふつう", "length": "みじかく", "input": "文字"}},
+  {"text": "夕方に 友だちから 電話が あった。",
+   "conditions": {"amount": "おおめ", "split": "段ごと", "ease": "やさしい", "length": "ながく", "input": "えらぶ形の たすけ"}}
+ ],
+ "arranger": [
+  {"trouble": "朝の じゅんびに 時間が かかって、始まりの 時間に まにあわないことが 続いています。",
+   "wish": "始まりの 時間を すこし 遅くできるか、相談したいです。",
+   "use_reader_outputs": true}
+ ],
+ "reader": {"from_png_json": "demo/docs_png_base64.json"}
+}

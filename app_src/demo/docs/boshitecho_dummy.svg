@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" font-family="sans-serif" fill="#000">
+<rect width="794" height="1123" fill="#fff"/>
+<rect x="40" y="40" width="714" height="1043" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="397" y="110" font-size="30" text-anchor="middle" font-weight="bold">母子手帳の 1 ページ（自作のダミー）</text>
+<line x1="60" y1="135" x2="734" y2="135" stroke="#000" stroke-width="1"/>
+<text x="70" y="190" font-size="20" text-anchor="start" font-weight="normal">ページ 1  きろく</text>
+<text x="70" y="230" font-size="18" text-anchor="start" font-weight="normal">おなまえ: もも ちゃん</text>
+<line x1="60" y1="260" x2="734" y2="260" stroke="#000" stroke-width="1"/>
+<text x="70" y="310" font-size="18" text-anchor="start" font-weight="bold">うまれた とき</text>
+<text x="70" y="350" font-size="18" text-anchor="start" font-weight="normal">からだの 大きさ: （ダミー）</text>
+<text x="70" y="390" font-size="18" text-anchor="start" font-weight="normal">おもさ: （ダミー）</text>
+<line x1="60" y1="415" x2="734" y2="415" stroke="#000" stroke-width="1"/>
+<text x="70" y="465" font-size="18" text-anchor="start" font-weight="bold">さいしょの 一年</text>
+<text x="70" y="505" font-size="18" text-anchor="start" font-weight="normal">わらった 日: 0000年 00月 00日</text>
+<text x="70" y="545" font-size="18" text-anchor="start" font-weight="normal">すわった 日: 0000年 00月 00日</text>
+<line x1="60" y1="570" x2="734" y2="570" stroke="#000" stroke-width="1"/>
+<text x="70" y="620" font-size="18" text-anchor="start" font-weight="normal">メモ: （省略）</text>
+<text x="70" y="660" font-size="18" text-anchor="start" font-weight="normal">電話: 090-0000-0000</text>
+<text x="754" y="1087" font-size="13" text-anchor="end">自作のダミー（デモ用）</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" font-family="sans-serif" fill="#000">
+<rect width="794" height="1123" fill="#fff"/>
+<rect x="40" y="40" width="714" height="1043" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="397" y="110" font-size="30" text-anchor="middle" font-weight="bold">個別支援計画（自作のダミー）</text>
+<line x1="60" y1="135" x2="734" y2="135" stroke="#000" stroke-width="1"/>
+<text x="70" y="190" font-size="20" text-anchor="start" font-weight="normal">利用者名: もも さん</text>
+<text x="70" y="230" font-size="18" text-anchor="start" font-weight="normal">作成日: 0000年 00月 00日</text>
+<line x1="60" y1="260" x2="734" y2="260" stroke="#000" stroke-width="1"/>
+<text x="70" y="310" font-size="18" text-anchor="start" font-weight="bold">ねがい</text>
+<text x="70" y="345" font-size="18" text-anchor="start" font-weight="normal">朝の じゅんびを ゆっくり すすめたい。</text>
+<line x1="60" y1="370" x2="734" y2="370" stroke="#000" stroke-width="1"/>
+<text x="70" y="420" font-size="18" text-anchor="start" font-weight="bold">目標</text>
+<text x="70" y="455" font-size="18" text-anchor="start" font-weight="normal">1. 家を 出る 時間を 決める。</text>
+<text x="70" y="490" font-size="18" text-anchor="start" font-weight="normal">2. 休む 時間も 決める。</text>
+<line x1="60" y1="515" x2="734" y2="515" stroke="#000" stroke-width="1"/>
+<text x="70" y="565" font-size="18" text-anchor="start" font-weight="bold">支援の 内容</text>
+<text x="70" y="600" font-size="18" text-anchor="start" font-weight="normal">話を 聞く。やり方を 一緒に 考える。</text>
+<text x="70" y="635" font-size="18" text-anchor="start" font-weight="normal">（省略）</text>
+<line x1="60" y1="660" x2="734" y2="660" stroke="#000" stroke-width="1"/>
+<text x="70" y="710" font-size="18" text-anchor="start" font-weight="normal">担当: りんご さん（ダミー）</text>
+<text x="70" y="750" font-size="18" text-anchor="start" font-weight="normal">電話: 090-0000-0000</text>
+<text x="754" y="1087" font-size="13" text-anchor="end">自作のダミー（デモ用）</text>
+</svg>
