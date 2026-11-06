@@ -1,11 +1,12 @@
 # SoE — Service of Empowerment
 
-> **One of two.** This page and [CIP.md](CIP.md) are self-contained: either can be
-> read alone. Together they are the theory the submitted tool implements. SoE is
-> the frame — what a floor is, whose record it is, and why good intentions cannot
-> be the guarantee. CIP is the mechanism — securing authorship at the moment of
-> input. Both are edited from the working documents in [`rinen/`](rinen/), which
-> remain the originals.
+> **二つのうちの一つ。** この紙と [CIP.md](CIP.md) は、**それぞれ 1 本で完結します**。
+> 合わせて、提出した器が実装している理論です。**SoE は枠**——床とは何か、
+> 記録は誰のものか、なぜ善意では担保にならないか。**CIP は機構**——
+> 入力のその瞬間に、著者を本人に留める。どちらも [`../rinen/`](../rinen/) に置いた
+> 作業文書から編集したもので、**原文はそちらに残っています。**
+>
+> 英語版は [`../en/SoE.md`](../en/SoE.md) にあります。
 
 ---
 
@@ -340,16 +341,16 @@ SoE は、社会を作り変える槌ではありません。**縫うための�
 
 ## 出所
 
-この文書は、[`rinen/`](rinen/) に置いた理念書から編集したものです。**原文はそちらです。**
+この文書は、[`../rinen/`](../rinen/) に置いた理念書から編集したものです。**原文はそちらです。**
 
 | 節 | 原文 |
 |---|---|
-| 0・1・2・10・11・12 | `rinen/2026_09_02_soe_philosophy_v3_01_basics_v1_1.md` |
-| 3・4・5・6 | `rinen/2026_07_14_soe_philosophy_v3_02_self.md` |
-| 7・8・9 | `rinen/2026_09_15_soe_philosophy_v3_04_social_structure_v1_2.md` |
-| 支援の作法 | `rinen/2026_09_02_soe_philosophy_v3_05_practice_v1_1.md` |
-| 記録と権利 | `rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
-| 層と面／書き手／実効性／共通 | `rinen/` の 06・07・08・共通編 |
+| 0・1・2・10・11・12 | `../rinen/2026_09_02_soe_philosophy_v3_01_basics_v1_1.md` |
+| 3・4・5・6 | `../rinen/2026_07_14_soe_philosophy_v3_02_self.md` |
+| 7・8・9 | `../rinen/2026_09_15_soe_philosophy_v3_04_social_structure_v1_2.md` |
+| 支援の作法 | `../rinen/2026_09_02_soe_philosophy_v3_05_practice_v1_1.md` |
+| 記録と権利 | `../rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
+| 層と面／書き手／実効性／共通 | `../rinen/` の 06・07・08・共通編 |
 
 **編集でこぼれたもの**：各編の「二律背反の記録」「射程外の自己申告」「出所の md5」「未決の一覧」。
 原文にはすべて残っています。**この編集版を、原文の代わりに引用しないでください。**

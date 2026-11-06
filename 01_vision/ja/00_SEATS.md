@@ -1,10 +1,13 @@
 # この理念を書いた「席」について
 
-> **On the seats.** The documents in this folder were written by several Claude
-> sessions with separate roles, corresponding over files. They are not subagents
-> spawned inside one run: each is its own session, and the only thing that passes
-> between them is a letter on disk. A seat does not inspect its own work. The
-> seat names appear throughout the texts, so this page says who they are.
+> **席について。** このフォルダの文書は、**役割で分けた複数の Claude のセッション**が、
+> ファイルで文通しながら書いたものです。ひとつの実行の中から呼び出す補助的な
+> エージェントではありません——**それぞれが独立したセッション**で、
+> 互いに渡るのは**ディスクに置かれた 1 通の手紙だけ**です。
+> **席は、自分の仕事を自分で検査しません。** 本文に席の名がそのまま出てくるので、
+> この紙で、それが誰なのかを書いておきます。
+>
+> 英語版は [`../en/00_SEATS.md`](../en/00_SEATS.md) にあります。
 
 この `01_vision/` に置いてある文書には、**席の名**がそのまま出てきます。
 消さずに置いています。誰が書いたかが分からない理念書は、出典のない主張と同じだからです。

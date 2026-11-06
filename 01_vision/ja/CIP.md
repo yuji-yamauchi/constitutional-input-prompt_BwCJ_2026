@@ -1,10 +1,12 @@
 # CIP — Constitutional Input Prompt
 
-> **Two of two.** This page and [SoE.md](SoE.md) are self-contained: either can be
-> read alone. SoE is the frame — what a floor is and why good intentions cannot be
-> the guarantee. CIP is the mechanism: the right to speak as the author of
-> yourself, **before** a record about you is written. Both are edited from the
-> working documents in [`rinen/`](rinen/), which remain the originals.
+> **二つのうちの二つめ。** この紙と [SoE.md](SoE.md) は、**それぞれ 1 本で完結します**。
+> **SoE は枠**——床とは何か、なぜ善意では担保にならないか。**CIP は機構**——
+> あなたについての記録が書かれる**前に**、あなた自身の著者として語る権利。
+> どちらも [`../rinen/`](../rinen/) に置いた作業文書から編集したもので、
+> **原文はそちらに残っています。**
+>
+> 英語版は [`../en/CIP.md`](../en/CIP.md) にあります。
 
 ---
 
@@ -161,7 +163,7 @@
 - **教育基本法第 1 条からの導出**（第 3 層の国内法アンカー）は、
   まだ正本に統合されていません。
 
-**隠していません。** 原文の `rinen/2026_10_12_cip_rinensho_draft_v0_1.md` には、
+**隠していません。** 原文の `../rinen/2026_10_12_cip_rinensho_draft_v0_1.md` には、
 未決の一覧がそのまま残っています。
 
 ---
@@ -186,21 +188,21 @@ CIP だけでは、何のためにそこを守るのかが分かりません。
 - **外へ渡すときは、原本ではなく写しを出し、控えを手元に残す**
 - **既定で判定しない**（問いを返し、本人の文をそのまま読み返す。書きかえ・要約・採点をしない）
 
-動かし方は、リポジトリの [README](../README.md) にあります。
-六日間でそれを作った記録は、[`../00_devlog/`](../00_devlog/) にあります。
+動かし方は、リポジトリの [README](../../README.md) にあります。
+六日間でそれを作った記録は、[`../../00_devlog/ja/`](../../00_devlog/ja/) にあります。
 
 ---
 
 ## 出所
 
-この文書は、[`rinen/`](rinen/) に置いた理念書から編集したものです。**原文はそちらです。**
+この文書は、[`../rinen/`](../rinen/) に置いた理念書から編集したものです。**原文はそちらです。**
 
 | 節 | 原文 |
 |---|---|
-| 1・2・3・4・5・6・7・9・10 | `rinen/2026_10_12_cip_rinensho_draft_v0_1.md` |
-| 2・7（禁止と限界） | `rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
+| 1・2・3・4・5・6・7・9・10 | `../rinen/2026_10_12_cip_rinensho_draft_v0_1.md` |
+| 2・7（禁止と限界） | `../rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
 | 8（残さない権利・解釈を保存しない） | 同上、および非公開の作業場の時系列の仕様 |
-| 6（R49） | `rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
+| 6（R49） | `../rinen/2026_09_02_soe_philosophy_v3_03_record_rights_v1_1.md` |
 
 **編集でこぼれたもの**：定義の分岐（案 A／案 B）の全文、出所の md5、未決の一覧、
 「この文書の格」をめぐる未決。原文にはすべて残っています。

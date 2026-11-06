@@ -1,17 +1,18 @@
 # ここへ辿り着くまで — 理念の年表
 
-> **How this got here.** A dated trail of the theory behind this tool, from the
-> first policy draft to the ideals document the submitted app is built on. Dates
-> come from the filenames of the originals and from passages inside the documents
-> published in this folder; where a document only refers to something not
-> published here, that is marked. Nothing in this list is reconstructed from
-> memory.
+> **どう辿り着いたか。** この器の背後にある理論を、日付で並べた列です。
+> 最初の方針の草稿から、提出したアプリが立っている理念書まで。
+> 日付の出所は、**原文のファイル名**と、**このフォルダに公開した文書の本文**です。
+> 公開していない物にしか触れていない場合は、**印で分けています**。
+> **この列に、記憶から組み直した行は 1 つもありません。**
+>
+> 英語版は [`../en/00_TIMELINE.md`](../en/00_TIMELINE.md) にあります。
 
 この器（Constitutional Input Prompt）は、ハッカソンの六日間で思いついたものではありません。
 その前に積まれたものを、日付で並べます。
 
 **印の読み方**
-`［本棚］`＝この `rinen/` に置いた文書そのもの ／
+`［本棚］`＝[`../rinen/`](../rinen/) に置いた文書そのもの ／
 `［本文］`＝置いた文書の本文に書かれていること ／
 `［外］`＝非公開の作業場にある原本（ここでは読めません）
 
@@ -78,7 +79,7 @@
 ## 2026 年 11-02 — 六日間
 
 ハッカソンが始まり、ここまでの理念の上に、**入力の段階で著者を本人に残す**器が作られます。
-その六日間の記録は [`../00_devlog/`](../00_devlog/) にあります。
+その六日間の記録は [`../../00_devlog/ja/`](../../00_devlog/ja/) にあります。
 
 ---
 
