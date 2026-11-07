@@ -218,6 +218,12 @@ Written as plans, not as claims:
   invented.
 - **No personal information is included in this repository.**
 - No real service-user record is used anywhere in this project.
+- **The background research was done outside this repository, and is not
+  included.** Six months, 112 topics, 100,011 lines — and 5,829 citations that
+  were never traced back to a primary source. An index of what was looked into,
+  and the reason the research itself stays out, is in
+  [`09_research/`](09_research/). "Looked into" and "verified" are different
+  words; only the verified work sits in [`08_sources/`](08_sources/).
 
 ---
 
@@ -309,6 +315,18 @@ Two tracks, and they are different:
   **著作権は合同会社HOHOHO が所有**しています。**Claude で作った物ではありません。**
 
 ほかは全部——仕様書も、実装も、検品の報告も、この README も——**Claude Code を通して作りました。**
+
+### 調べた物と、確かめた物
+
+このアプリの背景に、**6 か月・112 テーマ・100,011 行**の調査の記録があります。
+**その記録は、この repo に置いていません。**
+
+置かない理由は一つです。調査の生の出力には、**学術引用の形が 5,829 件**あり、
+その**ほとんどを一次資料に到達して確かめていない**からです。
+確かめた物だけが [`08_sources/`](08_sources/) にあります。
+
+**「調べた」と「確かめた」は、別の言葉です。**
+何を調べたかの索引と、置かない理由は [`09_research/`](09_research/) にあります。
 
 ---
 
