@@ -151,9 +151,15 @@ So that the judging scope is unambiguous:
   author's own photograph and the author's own recorded voice. Not made with Claude.
   The author has after-effects of a cerebral haemorrhage — no hearing in the left
   ear, and a stutter. That is the reason a separate service was used there.
-- **The illustration embedded in the screen** (`app_src/vault_app/static/mood.css`)
-  was drawn by a person during the event, as brand artwork. **Copyright is held by
-  合同会社HOHOHO (HOHOHO LLC).** Not made with Claude.
+- **The illustrations embedded in the screen** were drawn by a person during the
+  event, as brand artwork. **Copyright is held by 合同会社HOHOHO (HOHOHO LLC).**
+  Not made with Claude. The repository holds **15** of them, each inlined in a
+  stylesheet: **5 in `brand.css`, 9 in `boards.css`, and 1 in `mood.css`.**
+  **The one in `mood.css` is not loaded by the screen** — the file is kept in the
+  repository, but `index.html` loads only `brand.css`, `boards.css`, `app.css` and
+  `mobile.css`. Counted by: the number of `--img-` definitions, and of `data:image`
+  occurrences, in each stylesheet (the two agree), and the `href` values in
+  `index.html`.
 - **Some of the fact-checking was deliberately not Claude.** Numbers and claims in
   the script, and the statutory copies, were also put to large language models from
   other makers. This was on purpose: a check run inside one model family is not an
@@ -346,8 +352,14 @@ Two tracks, and they are different:
   **Claude で作った物ではありません。**
   著者には脳出血の後遺症があり、**左耳が聴こえず、吃音があります。**
   話者の区間に別のサービスを使ったのは、そのためです。
-- **画面に埋め込んだ絵**（`app_src/vault_app/static/mood.css`）は、期間中に**人が描いた**ブランドの絵で、
+- **画面に埋め込んだ絵**は、期間中に**人が描いた**ブランドの絵で、
   **著作権は合同会社HOHOHO が所有**しています。**Claude で作った物ではありません。**
+  repo に在るのは **15 点**で、いずれも型紙（スタイルシート）の中に直接 書き込んであります――
+  **`brand.css` に 5 点・`boards.css` に 9 点・`mood.css` に 1 点。**
+  **`mood.css` の 1 点は、画面では読み込んでいません**（ファイルは repo に残していますが、
+  `index.html` が読むのは `brand.css`・`boards.css`・`app.css`・`mobile.css` の 4 本だけです）。
+  【数え方：型紙ごとの `--img-` の定義の数と `data:image` の出現数（両方一致）、
+  および `index.html` の `href` の値】
 - **事実確認の一部は、わざと Claude ではありません。** 台本の数字や主張、法令の写しは、
   **ほかの作り手の大規模言語モデルにも当てました。** 意図してそうしています。
   **同じモデルの系統の中で検査しても、それは外の検査になりません。**

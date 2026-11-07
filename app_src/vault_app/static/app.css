@@ -311,38 +311,11 @@ textarea.field { min-height: 90px; resize: vertical; line-height: 1.6; font-size
 .switch input:checked + .slot::after { transform: translateX(18px); }
 .switch input:focus-visible + .slot { outline: 2px solid var(--mint-deep); outline-offset: 2px; }
 
-/* ---------- ホームの気分の面（4.1） ---------- */
-.scene-btn {
-  display: block; width: 100%; min-height: 120px; border-radius: 14px; border: 0; cursor: pointer; padding: 14px;
-  background: linear-gradient(135deg, #FDEFC4, #EAF1E4); text-align: right; font-size: 22px; font-weight: 700; color: var(--brown);
-}
-.mood { background: #EAF1E4; border-radius: 12px; padding: 12px; margin-top: 12px; }
-.mood h3 { margin: 0 0 2px; font-size: 14px; }
-.mood .tiny { margin: 0 0 6px; }
-.mood h4.mood-h { margin: 0 0 2px; font-size: 13px; font-weight: 700; }
-.mood-sec { padding: 0; }
-.mood-sec + .mood-sec { border-top: 1px dotted var(--line); margin-top: 10px; padding-top: 10px; }
-.mood-sec + .mood-row { border-top: 1px dotted var(--line); margin-top: 10px; padding-top: 10px; }
-.dir-cards { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
-.dir-card {
-  flex: 1 1 210px; max-width: 250px; background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 10px;
-  text-align: left; cursor: pointer; font: inherit; color: inherit;
-}
-.dir-card[aria-pressed="true"] { border-color: var(--mint); background: #EAF1E4; box-shadow: 0 0 0 2px var(--mint-deep); }
-.dir-pic { width: 100%; aspect-ratio: 600 / 314; margin-bottom: 6px; display: flex; justify-content: center; overflow: hidden; }
-.dir-pic .board-scene { max-width: none; margin: 0; }
-.dir-pic-tile { background: var(--ivory); border-radius: 8px; }
-.dir-pic-tile .board-120 { width: auto; height: 100%; aspect-ratio: 1 / 1; }
-body[data-figures="0"] .dir-pic { display: none; }
-.dir-card .nm { font-size: 12px; font-weight: 700; }
-.dir-card .ds { font-size: 11px; color: var(--brown-soft); line-height: 1.6; }
 .daily-fields { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; align-items: flex-start; }
 .daily-f { display: block; }
 .daily-time { padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; font: inherit; font-size: 13.5px; background: var(--paper); color: inherit; min-height: 44px; }
 .daily-share { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 12.5px; cursor: pointer; }
 .daily-status { min-height: 1.4em; }
-.mood-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.mood-row .btn { min-height: 48px; }
 .numpick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
 
 /* ---------- 表（回数だけ） ---------- */
@@ -381,6 +354,11 @@ table.counts td.n { text-align: right; font-variant-numeric: tabular-nums; }
 .fig-64 .fig-img { width: 64px; height: 64px; border-radius: 16px; }
 .fig-56 .fig-img { width: 56px; height: 56px; border-radius: 14px; }
 body[data-figures="0"] .figure { display: none !important; }
+/* 第 13 弾: 761px 以上の ホームの 列の 下に 置く 絵（飾りだけ。押せない・字は 無い・読み上げない）。絵は boards.css の 04 の 場面（ベンチの ある 道＝人は 描かれて いない）。絵なしの 設定と「背景を 白に する」では 出さない。スマホ幅（760px 以下）では 出さない */
+@media (min-width: 761px) {
+  .view[data-accent="home"]::after { content: ""; display: block; width: 100%; max-width: 600px; aspect-ratio: 600 / 314; margin: 8px auto 0; border-radius: var(--radius-card); background: var(--img-board-04-seat-empty-scene) center / contain no-repeat; }
+  body[data-figures="0"] .view[data-accent="home"]::after, body.bg-white .view[data-accent="home"]::after { display: none; }
+}
 .greet { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .greet-body { flex: 1 1 auto; min-width: 0; }
 .empty-fig { display: flex; align-items: center; gap: 12px; }
@@ -390,7 +368,6 @@ body[data-figures="0"] .figure { display: none !important; }
 /* 第 3 弾③: 今はなしたいこと の 空の欄の 頭に 出す 選択肢（第 4 弾②で 詰めた） */
 .start-pick { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 4px; }
 .start-pick .pick-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-.start-pick .mood-h { margin: 0; font-size: 12.5px; font-weight: 700; }
 .start-pick .pick-head .linkbtn { font-size: 11.5px; padding: 0; }
 .start-pick .pick-sec .tiny { margin: 2px 0 4px; font-size: 10.5px; line-height: 1.5; }
 .start-pick .pick-dirs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0; }
@@ -442,7 +419,6 @@ body[data-figures="0"] .board { display: none; }
 }
 @media (max-width: 900px) {
   .daily-time { font-size: 16px; }
-  .mood .chip-btn, .dir-card { min-height: 44px; }
   .fig-hero .fig-img { width: 110px; }
   .fig-72 .fig-img { width: 60px; height: 60px; }
   .fig-64 .fig-img { width: 54px; height: 54px; }
@@ -464,11 +440,6 @@ body[data-figures="0"] .board { display: none; }
   .left .nav-btn { justify-content: center; padding: 8px 0; border-left: 0; }
   .grid2 { grid-template-columns: 1fr; }
   .bg-row { min-height: 40px; }
-}
-@media (max-width: 640px) {
-  .dir-card { flex: 1 1 100%; max-width: none; display: flex; align-items: center; gap: 10px; }
-  .dir-card .dir-pic { flex: 0 0 104px; width: 104px; margin-bottom: 0; }
-  .dir-card .dir-txt { min-width: 0; }
 }
 @media (max-width: 480px) {
   .fig-hero .fig-img { width: 90px; }

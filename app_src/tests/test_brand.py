@@ -234,8 +234,9 @@ class N_Brand(unittest.TestCase):
         self.assertNotEqual(moved, js)
         self.assertIn("renderHome", _board_calls_outside(moved, BOARD_CALLERS))
         # 許す 3 関数の 外（buildTier・buildMood）からは許さない
+        # （v0.12: buildMood は 無くなった ので、board( を 呼ぶ buildMood を 戻した 写しが 検出される ことを 見る）
         self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
-        moved3 = re.sub(r"(\n  function buildMood\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", js, count=1)
+        moved3 = js.replace("\n  function openRail(tier) {", "\n  function buildMood() {\n    board('02', 'empty', 'board-160');\n  }\n  function openRail(tier) {", 1)
         self.assertNotEqual(moved3, js)
         self.assertIn("buildMood", _board_calls_outside(moved3, BOARD_CALLERS))
         moved2 = re.sub(r"(\n  function buildTier\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", js, count=1)
@@ -306,7 +307,7 @@ class T_Brand(unittest.TestCase):
     def test_board_only_in_hikidashi_and_seiri(self):
         js = _read("app.js")
         self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
-        self.assertNotIn("board(", js[js.index("function buildMood("):js.index("function openRail(")])   # v0.9: 絵の 釦だけ
+        self.assertNotIn("function buildMood(", js)   # v0.9: 絵の 釦だけ → v0.12: 釦ごと 無い（renderHome は 下の 輪で 見る）
         for name in ("renderHome", "renderRenshu", "renderWatasu", "renderKiroku"):
             m = re.search(r"function %s\(" % name, js)
             if not m:

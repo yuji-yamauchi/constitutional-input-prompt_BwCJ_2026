@@ -44,7 +44,6 @@ var BRAND_FIGURES = true;
     'DEMO': 'この入口の応答は 録画用に記録した物です',
     'DEMO-PLACEHOLDER': 'この入口の応答は 用意した 物です（Claude を 呼んでいません）',
     'UNCONF': '設定が ありません。',
-    'W-40': 'きょうの気分',
     'W-41': 'きょうは、どんな気分？',
     'W-42': 'Claude から話しかけることは ありません。よぶのは、あなたです。',
     'W-43': '（えらばなくても だいじょうぶ）',
@@ -860,8 +859,6 @@ var BRAND_FIGURES = true;
     if (S.status && S.status.claude === 'no_key') {
       sec.appendChild(el('div', 'note', W['W-64']));
     }
-    // 気分の面（A への任意の入口）
-    sec.appendChild(buildMood());
     // とどいた返事
     var rc = card(null);
     var head = cardHead(W['W-62']);
@@ -874,7 +871,7 @@ var BRAND_FIGURES = true;
     loadRepliesInto(body);
   }
 
-  /* 問いの向き 4 札（内部の名・題・説明の番号）。絵は buildMood の中で選ぶ。 */
+  /* 問いの向き 4 札（内部の名・題・説明の番号）。画面には 出ない（v0.9 で 面を なくした）。 */
   var DIRS = [
     { key: 'ippo', title: 'W-175', desc: 'W-176' },
     { key: 'kotoba', title: 'W-177', desc: 'W-178' },
@@ -918,19 +915,6 @@ var BRAND_FIGURES = true;
     S.runSeq += 1;
     S.practice = { run: S.runSeq, direction: direction || null, limit: limit || null, count: 0, reached: false };
     openRail('renshu');
-  }
-
-  /* ホームの「きょうの気分」の 絵の 釦。押すと 右の「今はなしたいこと」の チャットが 開く（気分の 面は 無い。問いは チャットの 中で 出す）。 */
-  function buildMood() {
-    var c = card(null);
-    var scene = el('button', 'scene-btn');
-    scene.type = 'button';
-    var scenePic = el('span', 'scene-pic'); scenePic.setAttribute('aria-hidden', 'true');
-    scene.appendChild(scenePic);
-    scene.appendChild(el('span', 'scene-lbl', W['W-40']));
-    scene.addEventListener('click', function () { openRail('renshu'); });
-    c.appendChild(scene);
-    return c;
   }
 
   function openRail(tier) {

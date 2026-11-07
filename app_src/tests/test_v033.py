@@ -384,16 +384,16 @@ class T_Screen(unittest.TestCase):
         self.assertNotIn("mood-card", js)
         self.assertIsNone(_w_value(js, "W-249"))
 
-    def test_home_scene_button_opens_the_chat(self):
-        # v0.9: ホームの「きょうの気分」は 絵の 釦だけ（押すと 今はなしたいこと の チャットが 開く）。向きの 札・数の 札・時刻の 欄・「聞き役に 伝える」は 無い。
-        # （v0.3.3〜v0.8 の test_direction_cards＝4 枚の 向きの 札の 検査は、面を なくした ので この 検査に 置き換えた）
+    def test_home_has_no_mood_face_and_no_scene_button(self):
+        # v0.12: ホームの「きょうの気分」の 絵の 釦も なくした（ホームは あいさつと とどいた返事だけ。チャットは 左の 帯の 釦から 開く）。
+        # （v0.3.3〜v0.8 の test_direction_cards＝4 枚の 向きの 札 → v0.9 の test_home_scene_button_opens_the_chat＝絵の 釦だけ → 本検査。
+        #   見たい ことは 同じ＝ホームに 向きの 札・数の 札・時刻の 欄・「聞き役に 伝える」・board( が 無い こと。釦が 無い ことは test_v012 が 見る）
         js = _read("app.js")
-        m = re.search(r"function buildMood\(\) \{(.*?)\n  function openRail", js, re.S)
+        self.assertNotIn("function buildMood(", js)
+        m = re.search(r"function renderHome\(host\) \{(.*?)\n  \}\n", js, re.S)
         body = m.group(1)
-        self.assertIn("'scene-btn'", body)
-        self.assertIn("openRail('renshu')", body)
         self.assertEqual(len(re.findall(r"\bboard\(", body)), 0)
-        for bad in ("dir-card", "S.daily", "shareDate", "daily-time", "figure(", "W['W-257']"):
+        for bad in ("buildMood", "scene-btn", "dir-card", "S.daily", "shareDate", "daily-time", "W['W-257']", "openRail("):
             self.assertNotIn(bad, body)
         self.assertNotRegex(body, "てくちゃん|きろちゃん|ことちゃん|まなちゃん")
 
@@ -427,7 +427,8 @@ class T_Screen(unittest.TestCase):
         js = _read("app.js")
         m = re.search(r"function startRun\(direction, limit\) \{(.*?)\n  \}\n", js, re.S)
         self.assertNotIn("S.cond", m.group(1))
-        m = re.search(r"function buildMood\(\) \{(.*?)\n  function openRail", js, re.S)
+        # v0.12: buildMood は 無くなった（ホームの 釦ごと）。ホームの 描画が 条件に 触らない ことを 代わりに 見る
+        m = re.search(r"function renderHome\(host\) \{(.*?)\n  \}\n", js, re.S)
         self.assertNotIn("S.cond", m.group(1))
         self.assertNotIn("DEFAULT_COND", m.group(1))
 
