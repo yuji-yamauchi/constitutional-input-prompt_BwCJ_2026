@@ -26,6 +26,14 @@ TIMEOUT_SECONDS = 60
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 SENDABLE_IMAGES = ("image/jpeg", "image/png", "image/webp")
 
+DIRECTION_LABELS = {
+    "ippo": "つぎの 一歩の こと",
+    "kotoba": "ことばに する こと",
+    "wakaranai": "わからない こと",
+    "oboeru": "おぼえて おきたい こと",
+}
+BREAKFAST_LABELS = {"yes": "あり", "no": "なし"}
+
 QUESTION_MAX_CHARS = 60
 QUESTION_ENDINGS = ("？", "?", "。")
 _DIGIT_RE = re.compile(r"[0-9\uff10-\uff19]")
@@ -233,10 +241,24 @@ class ClaudeClient(object):
         ]
         return self._prompt("reader"), blocks, data
 
-    def build_listener(self, text, conditions):
-        """(system, blocks, key_bytes)。"""
+    def build_listener(self, text, conditions, direction=None, daily=None):
+        """(system, blocks, key_bytes)。
+        direction＝問いの向き（4 つの内部の名か None）・daily＝きょうの こと（bed_time・wake_time・breakfast の辞書か None）。
+        どちらも user の字に足すだけ。key_bytes には混ぜない（記録済みの応答の名が変わらない）。"""
         cond_lines = "\n".join("- %s: %s" % (k, conditions[k]) for k in sorted(conditions))
         user = "本人の文:\n%s\n\n条件:\n%s" % (text, cond_lines)
+        if direction in DIRECTION_LABELS:
+            user += "\n\n問いの 向き: %s" % DIRECTION_LABELS[direction]
+        if isinstance(daily, dict):
+            rows = []
+            if daily.get("bed_time"):
+                rows.append("- ゆうべ ねた 時刻: %s" % daily["bed_time"])
+            if daily.get("wake_time"):
+                rows.append("- おきた 時刻: %s" % daily["wake_time"])
+            if daily.get("breakfast") in BREAKFAST_LABELS:
+                rows.append("- あさごはん: %s" % BREAKFAST_LABELS[daily["breakfast"]])
+            if rows:
+                user += "\n\nきょうの こと（本人が 伝えると 決めた 分）:\n" + "\n".join(rows)
         key_bytes = json.dumps({"text": text, "conditions": conditions}, ensure_ascii=False, sort_keys=True).encode("utf-8")
         return self._prompt("listener"), [{"type": "text", "text": user}], key_bytes
 
@@ -276,9 +298,9 @@ class ClaudeClient(object):
         return {"markdown": md, "meta": meta}
 
     # ---- 2.2 聞き役
-    def ask_question(self, text, conditions):
+    def ask_question(self, text, conditions, direction=None, daily=None):
         """(question|None, reason|None)。読み返しは作らない（経路が本人の文をそのまま入れる）。"""
-        system, blocks, key_bytes = self.build_listener(text, conditions)
+        system, blocks, key_bytes = self.build_listener(text, conditions, direction, daily)
         payload = self._run("listener", "本人の文 1 つ（問いを 1 つ）", system, blocks, key_bytes)
         try:
             d = payload if isinstance(payload, dict) else extract_json(payload)

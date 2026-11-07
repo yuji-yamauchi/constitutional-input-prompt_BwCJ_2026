@@ -7,7 +7,7 @@
 - JSON は ensure_ascii=False・インデント 1。
 - ネットワークへ出るコードは無い。
 """
-import json, os, re, shutil, threading, zipfile
+import datetime, json, os, re, shutil, threading, zipfile
 
 from app_src.common import contract, ids
 
@@ -24,6 +24,9 @@ CLAUDE_LOG_KEYS = ("at", "kind", "what", "bytes", "model", "demo")
 CONDITION_NAMES = ("amount", "split", "topic_free")
 SECRET_NAME = "pairing.secret.json"
 _ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+_DATE_RE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+_TIME_RE = re.compile(r"([01][0-9]|2[0-3]):[0-5][0-9]")
+BREAKFAST_VALUES = ("yes", "no")
 
 
 class OriginalExists(FileExistsError):
@@ -155,6 +158,35 @@ def count_from_files(names, read):
     return c
 
 
+def count_extra_from_files(names):
+    """cip-export-v1 の 8 鍵の外の数え物（counts_extra）。いまは きょうの こと（daily/<日付>.json）だけ。"""
+    n = 0
+    for name in names:
+        parts = name.split("/")
+        if len(parts) == 2 and parts[0] == "daily" and parts[1].endswith(".json") and not parts[1].startswith("."):
+            n += 1
+    return {"daily": n}
+
+
+def _check_date(value):
+    """YYYY-MM-DD で、実在の日。違えば ValueError。"""
+    if not isinstance(value, str) or not _DATE_RE.fullmatch(value):
+        raise ValueError("date の形が正しくない")
+    try:
+        datetime.date(int(value[:4]), int(value[5:7]), int(value[8:10]))
+    except ValueError:
+        raise ValueError("date が実在の日でない") from None
+    return value
+
+
+def _check_hhmm(value, what):
+    if value is None:
+        return None
+    if not isinstance(value, str) or not _TIME_RE.fullmatch(value):
+        raise ValueError("%s の形が正しくない" % what)
+    return value
+
+
 def verify_export_zip(zip_path):
     """zip の中を数え直して manifest.counts と比べる。違えば ExportCountMismatch。counts を返す。"""
     with zipfile.ZipFile(zip_path) as z:
@@ -163,8 +195,14 @@ def verify_export_zip(zip_path):
             raise ExportCountMismatch("manifest.json が zip に無い")
         manifest = json.loads(z.read("manifest.json").decode("utf-8"))
         counted = count_from_files(names, z.read)
+        counted_extra = count_extra_from_files(names)
     if not contract.export_manifest_ok(manifest, counted):
         raise ExportCountMismatch("manifest.counts=%s 数え直し=%s" % (manifest.get("counts"), counted))
+    extra = manifest.get("counts_extra")
+    if not isinstance(extra, dict):
+        extra = {}
+    if extra.get("daily", 0) != counted_extra["daily"]:          # 欄が無い＝0 と読む（daily が在るのに欄が無ければ不一致）
+        raise ExportCountMismatch("manifest.counts_extra=%s 数え直し=%s" % (extra, counted_extra))
     return counted
 
 
@@ -213,11 +251,16 @@ class Vault:
                     return f.read()
             return count_from_files(self._names(), read)
 
+    def counts_extra(self):
+        with self._lock:
+            return count_extra_from_files(self._names())
+
     def write_manifest(self):
         with self._lock:
             m = {
                 "export_version": contract.EXPORT_VERSION,
                 "counts": self.counts(),
+                "counts_extra": self.counts_extra(),
                 "updated_at": ids.now_jst(),
             }
             _write_json(self._p("manifest.json"), m)
@@ -381,7 +424,9 @@ class Vault:
             self.write_manifest()
 
     # ---- A: 練習
-    def add_turn(self, conditions, text, readback, question=None, question_dropped_reason=None):
+    def add_turn(self, conditions, text, readback, question=None, question_dropped_reason=None,
+                 direction=None, shared_daily=False):
+        """direction＝問いの向き（無ければ None）・shared_daily＝きょうの ことを添えたか（真偽だけ。値は書かない）。"""
         condition_key(conditions)
         with self._lock:
             tid = ids.new_id("turn")
@@ -392,6 +437,8 @@ class Vault:
                 "readback": readback,
                 "question": question,
                 "question_dropped_reason": question_dropped_reason,
+                "direction": direction,
+                "shared_daily": bool(shared_daily),
             })
             return tid
 
@@ -425,6 +472,47 @@ class Vault:
             row = out.setdefault(condition_key(m["conditions"]), {})
             row[m["mark"]] = row.get(m["mark"], 0) + 1
         return out
+
+    # ---- きょうの こと（daily/<日付>.json・本人の箱。束には入れない）
+    def _daily_path(self, date):
+        return self._p("daily", _check_date(date) + ".json")
+
+    def get_daily(self, date):
+        path = self._daily_path(date)
+        row = _read_json(path)
+        if not isinstance(row, dict):
+            return {"date": date, "bed_time": None, "wake_time": None, "breakfast": None, "updated_at": None}
+        return {
+            "date": date,
+            "bed_time": row.get("bed_time"),
+            "wake_time": row.get("wake_time"),
+            "breakfast": row.get("breakfast"),
+            "updated_at": row.get("updated_at"),
+        }
+
+    def set_daily(self, date, bed_time, wake_time, breakfast):
+        path = self._daily_path(date)
+        _check_hhmm(bed_time, "bed_time")
+        _check_hhmm(wake_time, "wake_time")
+        if breakfast is not None and (not isinstance(breakfast, str) or breakfast not in BREAKFAST_VALUES):
+            raise ValueError("breakfast は yes か no か null")
+        with self._lock:
+            if bed_time is None and wake_time is None and breakfast is None:
+                try:
+                    os.unlink(path)
+                except FileNotFoundError:
+                    pass
+                self.write_manifest()
+                return self.get_daily(date)
+            _write_json(path, {
+                "date": date,
+                "bed_time": bed_time,
+                "wake_time": wake_time,
+                "breakfast": breakfast,
+                "updated_at": ids.now_jst(),
+            })
+            self.write_manifest()
+            return self.get_daily(date)
 
     # ---- C: 意思表出文
     def save_statement(self, item):

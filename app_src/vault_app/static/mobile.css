@@ -1,0 +1,115 @@
+/* mobile.css - スマホの幅（760px 以下）だけに効く上書き。
+   app.css と app.js は触らない。字は足さない（文言は app.js の表のまま）。
+   左の帯 → 上の横タブ／右の帯（チャット）→ 開いたときは画面いっぱい／押す所は 40〜44px 以上／入力は 16px。 */
+
+@media (max-width: 760px) {
+
+  /* ---------- 骨：縦に積む ---------- */
+  .shell { flex-direction: column; align-items: stretch; min-height: 100dvh; }
+
+  /* ---------- 左の帯 → 上の横タブ（sticky） ---------- */
+  .left, .left.side-min {
+    position: sticky; top: 0; z-index: 40;
+    width: 100%; height: auto;
+    flex-direction: row; align-items: center; gap: 4px;
+    border-right: 0; border-bottom: 1px solid var(--line);
+    padding: 6px 6px 6px max(6px, env(safe-area-inset-left));
+    padding-top: max(6px, env(safe-area-inset-top));
+    box-shadow: 0 2px 8px rgba(90, 70, 52, 0.06);
+  }
+  .left .left-head, .left.side-min .left-head {
+    display: contents;
+  }
+  .left .left-name, .left #btn-leftmin, .left .left-foot, .left .nav-h { display: none !important; }
+
+  /* 読み直す（左端）・チャット（右端） */
+  .left .dot-btn { order: 0; width: 40px; height: 40px; }
+  .left .chat-back {
+    order: 2; display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; font-size: 18px;
+    background: var(--mint-pale); border: 1.5px solid var(--mint); color: var(--mint-deep);
+  }
+  body.chat-only .left .chat-back { background: var(--mint); color: #3C3024; }
+
+  /* 横タブ */
+  .left .nav, .left.side-min .nav {
+    order: 1; flex: 1 1 auto; min-width: 0;
+    display: flex; flex-direction: row; gap: 6px;
+    overflow-x: auto; overflow-y: hidden; padding: 0 2px;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+            mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+  }
+  .left .nav::-webkit-scrollbar { display: none; }
+  .left .nav-btn, .left.side-min .nav-btn {
+    flex: none; width: auto; justify-content: flex-start; scroll-snap-align: start;
+    min-height: 44px; padding: 0 14px 0 10px; gap: 6px;
+    border: 1.5px solid var(--line); border-left: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--paper); white-space: nowrap; font-size: 13px;
+  }
+  .left .nav-btn .lbl, .left.side-min .nav-btn .lbl { display: inline !important; }
+  .left .nav-btn .ico, .left .nav-btn .ico svg { width: 18px; height: 18px; }
+  .left .nav-btn[aria-current="page"] {
+    background: var(--mint-pale); border-color: var(--mint); color: var(--mint-deep);
+  }
+
+  /* ---------- 本文 ---------- */
+  .center { min-height: 0; }
+  .hdr { height: auto; min-height: 48px; padding: 6px 14px; }
+  .crumb { font-size: 15px; }
+  .pill { min-height: 40px; padding: 6px 14px; }
+  .main { padding: 14px 12px calc(24px + env(safe-area-inset-bottom)); }
+
+  /* ---------- 右の帯（チャット） ---------- */
+  /* 本文を見ているあいだは出さない（チャットは右上の釦で開く） */
+  body:not(.chat-only) .rail { display: none; }
+  /* 開いたときは画面いっぱい。入力は下に張り付く */
+  body.chat-only { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  body.chat-only > .band { flex: none; }
+  body.chat-only .shell { flex: 1 1 auto; min-height: 0; }
+  body.chat-only .rail {
+    position: relative; top: auto; height: auto; flex: 1 1 auto; min-height: 0;
+    width: 100%; min-width: 0; max-width: none; border-left: 0;
+  }
+  .rail-chatonly { display: flex !important; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 12px; }
+  .rail-chatonly .linkbtn {
+    min-height: 36px; padding: 0 12px; border-radius: 999px; text-decoration: none; font-weight: 700;
+    background: var(--paper); border: 1.5px solid var(--mint); font-size: 12.5px;
+  }
+  .rail-head { padding: 10px 12px 8px; }
+  .rail-desc { font-size: 11px; }
+  .rail .sidebtn { width: 40px; height: 40px; font-size: 15px; }
+  .tier-foot { padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+  .tier-in { min-height: 48px; }
+  .sendbtn { min-height: 44px; padding: 8px 20px; }
+  .msg { max-width: 92%; }
+
+  /* ---------- 押す所を大きく ---------- */
+  .btn { min-height: 44px; }
+  .chip-btn { min-height: 40px; padding: 6px 14px; font-size: 13px; }
+  .sidebtn { width: 40px; height: 40px; }
+  .linkbtn { padding: 6px 0; font-size: 12.5px; }
+  .modal-close { min-width: 44px; min-height: 44px; font-size: 22px; }
+  details.fold > summary { padding: 6px 0; }
+  .switch { width: 48px; height: 28px; }
+  .switch .slot::after { width: 22px; height: 22px; }
+  .switch input:checked + .slot::after { transform: translateX(20px); }
+
+  /* ---------- 入力は 16px（iPhone で拡大されない） ---------- */
+  .field, textarea.field, select.field, .tier-in, .rail-sel, .daily-time,
+  .gate input[type="password"] { font-size: 16px; }
+  .rail-sel { min-height: 44px; }
+  .gate input[type="password"] { min-height: 48px; }
+
+  /* ---------- 面（modal）→ 下から出るシート ---------- */
+  .overlay { align-items: flex-end; padding: 0; }
+  .modal, .modal.narrow, .modal.wide-img {
+    max-width: none; max-height: 92dvh;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+  .modal-body { padding: 14px 16px calc(16px + env(safe-area-inset-bottom)); }
+
+  /* ---------- 入口 ---------- */
+  .gate { margin: 16px auto; padding: 20px; }
+}

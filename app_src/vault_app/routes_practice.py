@@ -4,6 +4,7 @@
 読み返しは本人の文を 1 字も変えずに返す（コードが作る）。Claude に頼むのは問い 1 文だけ。
 印と回数は「あったことの数」だけ。割合・合計・順位は計算しない。
 """
+from app_src.common import ids
 from app_src.common.httpkit import HttpError
 from app_src.vault_app import claude_client, storage
 from app_src.vault_app.auth import require_login
@@ -25,6 +26,8 @@ D_EMPTY_TEXT = "文が 空です。"
 D_TOO_LONG = "4000字を こえています。"
 D_BAD_MARK = "印の 字が 正しくありません。"
 D_NO_TURN = "この やりとりは 見つかりません。"
+D_BAD_DIRECTION = "問いの 向きが 正しくありません。"
+D_BAD_DAILY_DATE = "日付が 読めません。"
 
 
 def _body(req):
@@ -48,6 +51,14 @@ def h_conditions(req):
     return 200, {"conditions": [{"key": k, "label": label, "values": list(vals)} for k, label, vals in CONDITIONS]}
 
 
+def _check_direction(d):
+    if d is None:
+        return None
+    if not isinstance(d, str) or d not in claude_client.DIRECTION_LABELS:
+        raise HttpError(400, "bad_direction", D_BAD_DIRECTION)
+    return d
+
+
 def h_turn(req):
     require_login(req)
     app = req.app
@@ -58,17 +69,31 @@ def h_turn(req):
         raise HttpError(400, "text_empty", D_EMPTY_TEXT)
     if len(text) > MAX_TEXT_CHARS:
         raise HttpError(413, "too_large", D_TOO_LONG)
+    direction = _check_direction(body.get("direction"))
+    share = body.get("share_daily", False)
+    if not isinstance(share, bool):
+        raise HttpError(400, "bad_request", D_BAD_BODY)
+    daily = None
+    if share:
+        try:
+            daily = app.vault.get_daily(body.get("daily_date"))
+        except ValueError:
+            raise HttpError(400, "bad_daily_date", D_BAD_DAILY_DATE) from None
+        if body.get("daily_date") != ids.now_jst()[:10]:          # 添えるのは その日の分だけ（過ぎた日の分は添えない）
+            raise HttpError(400, "bad_daily_date", D_BAD_DAILY_DATE)
+        if not any(daily.get(k) for k in ("bed_time", "wake_time", "breakfast")):
+            daily = None                                   # 空なら 何も添えない
     question, reason = None, None
     claude = claude_client.get_client(app)
     if claude is None:
         reason = "claude_unavailable"
     else:
         try:
-            question, reason = claude.ask_question(text, conds)
+            question, reason = claude.ask_question(text, conds, direction, daily)
         except claude_client.ClaudeError:
             question, reason = None, "claude_failed"       # 問いが無くても、読み返しと記録は残す
     readback = text                                        # 1 字も変えない
-    turn_id = app.vault.add_turn(conds, text, readback, question, reason)
+    turn_id = app.vault.add_turn(conds, text, readback, question, reason, direction=direction, shared_daily=daily is not None)
     out = {"turn_id": turn_id, "readback": readback, "question": question, "reason": reason}
     model = getattr(claude, "model", None)
     if isinstance(model, str):

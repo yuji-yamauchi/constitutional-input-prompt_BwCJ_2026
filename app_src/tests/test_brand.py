@@ -42,7 +42,10 @@ def _external_refs(text):
 
 
 BOARD_VARS = ("02-empty-tile", "02-filled-tile", "02-empty-scene", "02-filled-scene",
-              "03-seat-empty-tile", "03-seat-taken-tile", "03-seat-empty-scene", "03-seat-taken-scene")
+              "03-seat-empty-tile", "03-seat-taken-tile", "03-seat-empty-scene", "03-seat-taken-scene",
+              "04-seat-empty-scene")
+# board( を呼んでよい関数（ホームの面の buildMood を足した。renderHome の本文には置かない）
+BOARD_CALLERS = ("renderHikidashi", "renderSeiri", "loadRecordsInto", "buildMood")
 SEAT_TEXT = "いっしょに いる 人が います"
 
 
@@ -69,6 +72,7 @@ BOARD_SHA16 = {
     "02-empty-scene": "9868a9ef4dc8a68d", "02-filled-scene": "bd3cc30d65871168",
     "03-seat-empty-tile": "b465bed74554e4b2", "03-seat-taken-tile": "0d66e82c7347de11",
     "03-seat-empty-scene": "1500072bb627c1d3", "03-seat-taken-scene": "acd408a196e0510c",
+    "04-seat-empty-scene": "ac505f68a2278e31",
 }
 
 
@@ -189,12 +193,17 @@ class N_Brand(unittest.TestCase):
     def test_h_boards_negative_controls(self):
         css = _read("boards.css")
         js = _read("app.js")
-        # 変数が 7 本・9 本の写しでは 8 本の検査が落ちる
-        seven = css.replace("--img-board-02-empty-tile:", "--x-02-empty-tile:")
-        self.assertEqual(_board_var_count(seven), 7)
-        nine = css + "\n:root { --img-board-99-extra: url(\"data:image/png;base64,AA\"); }\n"
-        self.assertEqual(_board_var_count(nine), 9)
-        self.assertEqual(_board_var_count(css), 8)
+        # 変数が 8 本・10 本の写しでは 9 本の検査が落ちる
+        eight = css.replace("--img-board-02-empty-tile:", "--x-02-empty-tile:")
+        self.assertEqual(_board_var_count(eight), 8)
+        ten = css + "\n:root { --img-board-99-extra: url(\"data:image/png;base64,AA\"); }\n"
+        self.assertEqual(_board_var_count(ten), 10)
+        self.assertEqual(_board_var_count(css), 9)
+        # 9 枚目（04）の絵を 1 字変えた写しは、指紋が変わる
+        j = css.index("--img-board-04-seat-empty-scene")
+        k = css.index("base64,", j) + 300
+        flip4 = css[:k] + ("A" if css[k] != "A" else "B") + css[k + 1:]
+        self.assertNotEqual(_board_payload_sha16(flip4)["04-seat-empty-scene"], BOARD_SHA16["04-seat-empty-scene"])
         # img 要素を使った写しは検出される
         bad_js = js.replace("el('span', 'board-img')", "el('img', 'board-img')")
         self.assertNotEqual(bad_js, js)
@@ -223,7 +232,12 @@ class N_Brand(unittest.TestCase):
         moved = js.replace("function renderHome(", "function renderHome(", 1)
         moved = re.sub(r"(\n  function renderHome\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", moved, count=1)
         self.assertNotEqual(moved, js)
-        self.assertIn("renderHome", _board_calls_outside(moved, ("renderHikidashi", "renderSeiri", "loadRecordsInto")))
+        self.assertIn("renderHome", _board_calls_outside(moved, BOARD_CALLERS))
+        # buildMood からの board( は許す・別の関数（buildTier）からは許さない
+        self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
+        moved2 = re.sub(r"(\n  function buildTier\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", js, count=1)
+        self.assertNotEqual(moved2, js)
+        self.assertIn("buildTier", _board_calls_outside(moved2, BOARD_CALLERS))
 
 
 class T_Brand(unittest.TestCase):
@@ -263,10 +277,10 @@ class T_Brand(unittest.TestCase):
         js = _read("app.js")
         self.assertEqual(len(re.findall(r"'btn-main btn-send", js)), 4)
 
-    def test_boards_css_eight_vars_and_clean(self):
+    def test_boards_css_nine_vars_and_clean(self):
         css = _read("boards.css")
-        self.assertEqual(_board_var_count(css), 8)
-        self.assertEqual(len(re.findall(r"base64,", css)), 8)
+        self.assertEqual(_board_var_count(css), 9)
+        self.assertEqual(len(re.findall(r"base64,", css)), 9)
         for v in BOARD_VARS:
             self.assertRegex(css, r"--img-board-%s:" % v)
         self.assertIsNone(re.search(OLD_BRAND, css, re.I))
@@ -288,7 +302,8 @@ class T_Brand(unittest.TestCase):
 
     def test_board_only_in_hikidashi_and_seiri(self):
         js = _read("app.js")
-        self.assertEqual(_board_calls_outside(js, ("renderHikidashi", "renderSeiri", "loadRecordsInto")), [])
+        self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
+        self.assertIn("board(", js[js.index("function buildMood("):js.index("function openRail(")])
         for name in ("renderHome", "renderRenshu", "renderWatasu", "renderKiroku"):
             m = re.search(r"function %s\(" % name, js)
             if not m:
@@ -307,7 +322,7 @@ class T_Brand(unittest.TestCase):
     def test_seat_word_and_toggle(self):
         js = _read("app.js")
         self.assertTrue(_w_seat_ok(js))
-        self.assertIn("'W-29': 'v0.3.2 / 2026-11-06'", js)
+        self.assertIn("'W-29': 'v0.3.3 / 2026-11-06'", js)
         self.assertEqual(len(re.findall(r"seat-toggle", js)), 1)
         self.assertRegex(js, r"seat-toggle'?, W\['W-172'\]|'linkbtn body-size seat-toggle', W\['W-172'\]")
         self.assertIn("aria-pressed", js)

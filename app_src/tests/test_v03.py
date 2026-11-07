@@ -35,9 +35,22 @@ KNOWN_ARRANGER_SHA16 = "5b9c2cdcae8b5954"
 KNOWN_READER_SHA16 = "a81ac3e7595c38c2"
 KNOWN_PROMPT_SHA256 = {
     "reader": "c9f8adfbe844da466dae602154cd18395e23822f31b70f0ade8ab14c8c322ea0",
-    "listener": "d6e318da8238034cda1b647c4dab29026b23715a65f85571a8f59a0978760352",
+    "listener": "657ea00af0c915d396ba3053fe36f2fc648fc197ec91ac89ab45e89b2ce03b56",
     "arranger": "b49673ecbd5ba8e414b366f07de25c46f86894bac24c1bbe2e3432582b4f743f",
 }
+# 役ごとの 版の字（聞き役だけ v0.3.3 に上がった）
+PROMPT_HEADER = {
+    "reader": ("v0.3.1", "2026-11-05"),
+    "listener": ("v0.3.3", "2026-11-06"),
+    "arranger": ("v0.3.1", "2026-11-05"),
+}
+
+
+def _header_line(kind):
+    v, d = PROMPT_HEADER[kind]
+    return "# 版: %s / 決めた日: %s" % (v, d)
+
+
 LAW_INDEX = [{"id": "x-1", "law_name": "法A", "article": "第1条"}]
 
 
@@ -485,7 +498,7 @@ class T_PromptHeader(_Base):
         for kind in ("reader", "listener", "arranger"):
             with open(os.path.join(PROMPTS, kind + ".txt"), "rb") as f:
                 first = _text(f.read()).split("\n", 1)[0]
-            self.assertEqual(first, "# 版: v0.3.1 / 決めた日: 2026-11-05")
+            self.assertEqual(first, _header_line(kind))
 
     def test_split_prompt(self):
         self.assertEqual(claude_client.split_prompt("# 版: v0.3 / 決めた日: 2026-11-05\n本文です\n"), ("v0.3", "2026-11-05", "本文です\n"))
@@ -499,12 +512,12 @@ class T_PromptHeader(_Base):
         self.assertEqual(st, 200)
         self.assertEqual(len(j["items"]), 3)
         for it in j["items"]:
-            self.assertEqual(it["version"], "v0.3.1")
-            self.assertEqual(it["decided_on"], "2026-11-05")
+            self.assertEqual(it["version"], PROMPT_HEADER[it["name"]][0])
+            self.assertEqual(it["decided_on"], PROMPT_HEADER[it["name"]][1])
             self.assertFalse(it["text"].startswith("# 版"))
             with open(os.path.join(PROMPTS, it["name"] + ".txt"), "rb") as f:
                 raw = _text(f.read())
-            self.assertEqual("# 版: v0.3.1 / 決めた日: 2026-11-05\n" + it["text"], raw)
+            self.assertEqual(_header_line(it["name"]) + "\n" + it["text"], raw)
 
     def test_falls_back_to_the_old_way_without_the_line(self):
         d = self.tmpdir()
@@ -531,7 +544,7 @@ class T_TurnLabel(_Base):
         st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。"})
         self.assertEqual(st, 200)
         self.assertEqual(j["model"], "label-test-model")
-        self.assertEqual(j["prompt_version"], "v0.3.1")
+        self.assertEqual(j["prompt_version"], PROMPT_HEADER["listener"][0])
         self.assertIs(j["demo"], True)
         self.assertEqual(j["readback"], "朝です。")
 

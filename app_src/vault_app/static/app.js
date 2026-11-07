@@ -29,7 +29,7 @@ var BRAND_FIGURES = true;
     'W-26': '左の帯を とじる・ひらく',
     'W-27a': 'ログイン中',
     'W-28a': 'ログアウト',
-    'W-29': 'v0.3.2 / 2026-11-06',
+    'W-29': 'v0.3.3 / 2026-11-06',
     'W-31': '本文へスキップ',
     'W-32a': 'れんしゅう',
     'W-32b': 'じぶんの記録',
@@ -112,7 +112,38 @@ var BRAND_FIGURES = true;
     'W-162b': ' ・ 決めた日: ',
     'W-163': '指示の 全文を いま 読みこめません。',
     'W-171': 'とじる',
-    'W-172': 'いっしょに いる 人が います'
+    'W-172': 'いっしょに いる 人が います',
+    'W-173': '問いの 向き',
+    'W-174': 'どの 向きでも、聞き役は 問いを 1 つ 返すだけです。書きかえ・助言は しません。',
+    'W-175': 'つぎの 一歩の こと',
+    'W-176': 'これから どう したいかを たずねます。',
+    'W-177': 'ことばに する こと',
+    'W-178': 'ことわる・まって もらう・たのむ とき、どう 言うかを たずねます。',
+    'W-179': 'わからない こと',
+    'W-241': 'なにが わからないかを たずねます。',
+    'W-242': 'おぼえて おきたい こと',
+    'W-243': 'きょう あった ことで、おぼえて おきたい ことを たずねます。',
+    'W-244': 'といの かず',
+    'W-245': '10 ／ 30 ／ 60',
+    'W-246': 'えらんだ かずの 問いが 返ると、聞き役は 止まります。えらばなければ 止まりません。',
+    'W-247': 'えらんだ かずの といに なりました。',
+    'W-248': '問いの 向き: 〔題〕',
+    'W-250': 'きょうの こと（〔M〕月〔D〕日）',
+    'W-251': '書いた ことは、あなたの 器に のこります。聞き役には、「聞き役に 伝える」を 入れた 日だけ 送られます。',
+    'W-252': 'ゆうべ ねた 時刻',
+    'W-253': 'おきた 時刻',
+    'W-254': 'あさごはん',
+    'W-255': 'あり ／ なし',
+    'W-256': 'ぜんぶ 空に する',
+    'W-257': '聞き役に 伝える',
+    'W-258': '伝えなくても れんしゅうは できます。',
+    'W-259': 'きょうの ことを 添えて 送ります。',
+    'W-260': 'きょうの ことは 空です。何も 添えません。',
+    'W-261': 'ひかえられませんでした。もういちど ためせます。',
+    'W-262': '時刻が 読めません。',
+    'W-263': 'きょうの ことは、「聞き役に 伝える」を 入れた 日だけ、書いた字と いっしょに 聞き役の Claude に 送られます。',
+    'W-264': 'きょうの こと（ゆうべ ねた 時刻・おきた 時刻・あさごはん）も、書き出しに 入ります。',
+    'W-265': '問いの 向きを えらぶ'
   };
 
   /* 文言表に無い字（仮置き） */
@@ -127,12 +158,6 @@ var BRAND_FIGURES = true;
       { key: 'input', label: '入力の形', opts: ['文字', 'えらぶ形の たすけ'], soon: '声から文字（じゅんび中）' }
     ],
     condShort: { amount: '量', split: '区切り', ease: 'やさしさ', length: '長さ', input: '入力' },
-    moods: [
-      { name: 'すこしずつ 区切って', role: '書き方の条件の組', desc: '一度に 書く量を すくなく、区切りを 入れます。', patch: { amount: 'すくなめ', split: '文ごと' }, amount: 'すくなめ' },
-      { name: 'やさしい ことばで', role: '書き方の条件の組', desc: '問いの ことばを やさしく します。', patch: { ease: 'やさしい' }, amount: 'ふつう' },
-      { name: 'えらぶ形で たすけて', role: '書き方の条件の組', desc: 'えらぶ形の たすけを 使います。', patch: { input: 'えらぶ形の たすけ' }, amount: 'ふつう' },
-      { name: 'いつもの まま', role: '書き方の条件の組', desc: '条件を 変えません。', patch: {}, amount: 'ふつう' }
-    ],
     doRead: 'ここで 止める',
     keepGoing: 'つづける',
     contOrStop: 'つづけますか。 ここで 止めますか。',
@@ -470,8 +495,14 @@ var BRAND_FIGURES = true;
       recNames: {},
       hand: { stmtId: null, sel: {} },
       laws: {},
-      mood: { open: false, pick: null, amount: 'ふつう' }
+      mood: { open: false, dir: null, limit: null },
+      practice: null,
+      runSeq: 0,
+      daily: newDaily()
     };
+  }
+  function newDaily() {
+    return { date: null, bed: '', wake: '', bf: null, shareDate: null, seq: 0 };
   }
   function newStmt() {
     return { id: null, sections: { trouble: '', wish: '', grounds: [], statutes: [] }, hidden: {}, draft: null, text: '', finalized_at: null, dropped: false };
@@ -766,7 +797,8 @@ var BRAND_FIGURES = true;
     add(gp, el('strong', null, W['W-61a']), document.createTextNode(W['W-61b']));
     gb.appendChild(gp);
     g.appendChild(gb);
-    g.appendChild(figure('teku', 'fig-hero'));
+    var hero = figure('teku', 'fig-hero');
+    if (hero) { g.appendChild(hero); }
     sec.appendChild(g);
     // 聞き役につながらないとき
     if (S.status && S.status.claude === 'no_key') {
@@ -786,6 +818,52 @@ var BRAND_FIGURES = true;
     loadRepliesInto(body);
   }
 
+  /* 問いの向き 4 札（内部の名・題・説明の番号）。絵は buildMood の中で選ぶ。 */
+  var DIRS = [
+    { key: 'ippo', title: 'W-175', desc: 'W-176' },
+    { key: 'kotoba', title: 'W-177', desc: 'W-178' },
+    { key: 'wakaranai', title: 'W-179', desc: 'W-241' },
+    { key: 'oboeru', title: 'W-242', desc: 'W-243' }
+  ];
+  function dirTitle(key) {
+    var t = '';
+    DIRS.forEach(function (d) { if (d.key === key) { t = W[d.title]; } });
+    return t;
+  }
+
+  /* 日本時間の「きょう」（YYYY-MM-DD）。端末の時間帯には よらない。 */
+  function todayJst() {
+    try {
+      var parts = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var m = {};
+      parts.forEach(function (p) { m[p.type] = p.value; });
+      if (m.year && m.month && m.day) { return m.year + '-' + m.month + '-' + m.day; }
+    } catch (e) { /* 下の計算に任せる */ }
+    return new Date(new Date().getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+  }
+  function shareActive() {
+    return !!(S && S.daily && S.daily.shareDate && S.daily.shareDate === todayJst());
+  }
+  function dailyEmpty() {
+    return !(S.daily.bed || S.daily.wake || S.daily.bf);
+  }
+  /* 右の帯の「添えて 送ります」の行。切替が入っている日の renshu の段だけ。 */
+  function paintShare() {
+    var old = $('tier-share');
+    if (old && old.parentNode) { old.parentNode.removeChild(old); }
+    var st = $('tier-state');
+    if (!st || S.rail !== 'renshu' || !shareActive()) { return; }
+    var n = el('div', 'tier-share', dailyEmpty() ? W['W-260'] : W['W-259']);
+    n.id = 'tier-share';
+    st.parentNode.insertBefore(n, st.nextSibling);
+  }
+
+  function startRun(direction, limit) {
+    S.runSeq += 1;
+    S.practice = { run: S.runSeq, direction: direction || null, limit: limit || null, count: 0, reached: false };
+    openRail('renshu');
+  }
+
   function buildMood() {
     var c = card(null);
     var scene = el('button', 'scene-btn', W['W-40']);
@@ -797,46 +875,155 @@ var BRAND_FIGURES = true;
     scene.addEventListener('click', function () {
       S.mood.open = !S.mood.open; face.hidden = !S.mood.open;
       scene.setAttribute('aria-expanded', S.mood.open ? 'true' : 'false');
+      if (S.mood.open) { loadDaily(); }
     });
     add(face, el('h3', null, W['W-41']), el('p', 'tiny', W['W-42']));
-    var skip = linkbtn(W['W-43'], function () { S.mood.pick = null; S.mood.amount = 'ふつう'; S.cond = copy(DEFAULT_COND); paintMood(); refreshCondBar(); }, 'body-size');
-    face.appendChild(skip);
-    var cards = el('div', 'mood-cards');
+
+    /* (a) 問いの向き */
+    var secA = el('div', 'mood-sec');
+    add(secA, el('h4', 'mood-h', W['W-173']), el('p', 'tiny', W['W-174']));
+    secA.appendChild(linkbtn(W['W-43'], function () { S.mood.dir = null; S.mood.limit = null; paintMood(); }, 'body-size'));
+    var cards = el('div', 'dir-cards');
+    cards.setAttribute('role', 'group'); cards.setAttribute('aria-label', W['W-265']);
     var cardEls = [];
-    L.moods.forEach(function (m, idx) {
-      var b = el('button', 'mood-card'); b.type = 'button';
-      add(b, el('div', 'pic'), el('div', 'nm', m.name), el('div', 'rl', m.role), el('div', 'ds', m.desc));
+    DIRS.forEach(function (d) {
+      var b = el('button', 'dir-card'); b.type = 'button';
+      var pic = null;
+      if (d.key === 'ippo') { pic = board('04', 'seat-empty', 'board-scene'); }
+      else if (d.key === 'kotoba') { pic = board('03', 'seat-empty', 'board-scene'); }
+      else if (d.key === 'wakaranai') { pic = board('02', 'empty', 'board-scene'); }
+      else { pic = board('02', 'filled', 'board-120'); }
+      if (pic) {
+        var frame = el('div', 'dir-pic' + (d.key === 'oboeru' ? ' dir-pic-tile' : ''));
+        frame.appendChild(pic);
+        b.appendChild(frame);
+      }
+      var txt = el('div', 'dir-txt');
+      add(txt, el('div', 'nm', W[d.title]), el('div', 'ds', W[d.desc]));
+      b.appendChild(txt);
       b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.mood.pick = idx; S.mood.amount = m.amount; paintMood(); });
-      cards.appendChild(b); cardEls.push(b);
+      b.addEventListener('click', function () { S.mood.dir = (S.mood.dir === d.key) ? null : d.key; paintMood(); });
+      cards.appendChild(b); cardEls.push([d.key, b]);
     });
-    face.appendChild(cards);
-    face.appendChild(linkbtn(W['W-46'], openPromise, 'body-size'));
+    secA.appendChild(cards);
+    secA.appendChild(linkbtn(W['W-46'], openPromise, 'body-size'));
+    face.appendChild(secA);
+
+    /* (b) といの かず */
+    var secB = el('div', 'mood-sec');
+    secB.appendChild(el('h4', 'mood-h', W['W-244']));
+    var limRow = el('div', 'chips');
+    limRow.setAttribute('role', 'group'); limRow.setAttribute('aria-label', W['W-244']);
+    var limBtns = [];
+    W['W-245'].split(' ／ ').forEach(function (t) {
+      var n = parseInt(t, 10);
+      var b = el('button', 'chip-btn', t); b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { S.mood.limit = (S.mood.limit === n) ? null : n; paintMood(); });
+      limRow.appendChild(b); limBtns.push([n, b]);
+    });
+    secB.appendChild(limRow);
+    secB.appendChild(el('p', 'tiny', W['W-246']));
+    face.appendChild(secB);
+
+    /* (c) きょうの こと */
+    var secC = el('div', 'mood-sec');
+    var dh = el('h4', 'mood-h', '');
+    add(secC, dh, el('p', 'tiny', W['W-251']));
+    var fields = el('div', 'daily-fields');
+    var bedIn = el('input', 'daily-time'); bedIn.type = 'time'; bedIn.step = '60';
+    var wakeIn = el('input', 'daily-time'); wakeIn.type = 'time'; wakeIn.step = '60';
+    var bedWrap = el('label', 'daily-f'); add(bedWrap, el('span', 'field-label', W['W-252']), bedIn);
+    var wakeWrap = el('label', 'daily-f'); add(wakeWrap, el('span', 'field-label', W['W-253']), wakeIn);
+    var bfWrap = el('div', 'daily-f'); bfWrap.setAttribute('role', 'group'); bfWrap.setAttribute('aria-label', W['W-254']);
+    bfWrap.appendChild(el('span', 'field-label', W['W-254']));
+    var bfRow = el('div', 'chips');
+    var bfBtns = [];
+    var bfNames = W['W-255'].split(' ／ ');
+    ['yes', 'no'].forEach(function (v, i) {
+      var b = el('button', 'chip-btn', bfNames[i]); b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { S.daily.bf = (S.daily.bf === v) ? null : v; paintDaily(); saveDaily(); });
+      bfRow.appendChild(b); bfBtns.push([v, b]);
+    });
+    bfWrap.appendChild(bfRow);
+    add(fields, bedWrap, wakeWrap, bfWrap);
+    secC.appendChild(fields);
+    secC.appendChild(linkbtn(W['W-256'], function () {
+      S.daily.bed = ''; S.daily.wake = ''; S.daily.bf = null; paintDaily(); saveDaily();
+    }, 'body-size'));
+    var shareRow = el('label', 'daily-share');
+    var sw = el('span', 'switch');
+    var shareIn = el('input'); shareIn.type = 'checkbox';
+    add(sw, shareIn, el('span', 'slot'));
+    add(shareRow, sw, el('span', null, W['W-257']));
+    secC.appendChild(shareRow);
+    secC.appendChild(el('p', 'tiny', W['W-258']));
+    var dstatus = el('div', 'status daily-status'); dstatus.setAttribute('role', 'status');
+    secC.appendChild(dstatus);
+    face.appendChild(secC);
+
+    /* (d) 下の行 */
     var row = el('div', 'mood-row');
-    var go = btn(W['W-47'], 'btn-main', function () {
-      var cond = copy(DEFAULT_COND);
-      if (S.mood.pick !== null) { var p = L.moods[S.mood.pick].patch; Object.keys(p).forEach(function (k) { cond[k] = p[k]; }); }
-      cond.amount = S.mood.amount;
-      S.cond = cond; refreshCondBar();
-      openRail('renshu');
-    });
-    var pick = el('div', 'numpick');
-    pick.appendChild(el('span', null, W['W-48']));
-    var amountBtns = [];
-    L.condGroups[0].opts.forEach(function (o) {
-      var b = el('button', 'chip-btn', o); b.type = 'button';
-      b.addEventListener('click', function () { S.mood.amount = o; paintMood(); });
-      pick.appendChild(b); amountBtns.push([o, b]);
-    });
+    var go = btn(W['W-47'], 'btn-main', function () { startRun(S.mood.dir, S.mood.limit); });
     var no = btn(W['W-49'], 'btn-second', function () { S.mood.open = false; face.hidden = true; scene.setAttribute('aria-expanded', 'false'); });
-    add(row, go, pick, no);
+    add(row, go, no);
     face.appendChild(row);
     c.appendChild(face);
-    function paintMood() {
-      cardEls.forEach(function (b, i) { b.setAttribute('aria-pressed', S.mood.pick === i ? 'true' : 'false'); });
-      amountBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.amount === p[0] ? 'true' : 'false'); });
+
+    var statusTimer = null;
+    function setStatus(text, isErr) {
+      if (statusTimer) { clearTimeout(statusTimer); statusTimer = null; }
+      dstatus.textContent = text || '';
+      dstatus.className = 'status daily-status' + (isErr ? ' err' : '');
+      if (text && !isErr) { statusTimer = later(function () { dstatus.textContent = ''; }, 4000); }
     }
+    function paintMood() {
+      cardEls.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.dir === p[0] ? 'true' : 'false'); });
+      limBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.limit === p[0] ? 'true' : 'false'); });
+    }
+    function paintDaily() {
+      var d = S.daily.date || todayJst();
+      dh.textContent = W['W-250'].replace('〔M〕', String(parseInt(d.slice(5, 7), 10))).replace('〔D〕', String(parseInt(d.slice(8, 10), 10)));
+      bedIn.value = S.daily.bed || ''; wakeIn.value = S.daily.wake || '';
+      bfBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.daily.bf === p[0] ? 'true' : 'false'); });
+      shareIn.checked = shareActive();
+      paintShare();
+    }
+    async function loadDaily() {
+      var d = todayJst();
+      if (S.daily.date === d) { paintDaily(); return; }
+      S.daily.date = null; S.daily.bed = ''; S.daily.wake = ''; S.daily.bf = null;
+      paintDaily();
+      try {
+        var r = await api('GET', '/api/daily/' + d);
+        if (!S.loggedIn) { return; }
+        S.daily.date = d; S.daily.bed = (r && r.bed_time) || ''; S.daily.wake = (r && r.wake_time) || ''; S.daily.bf = (r && r.breakfast) || null;
+        paintDaily();
+      } catch (e) { if (S.loggedIn) { setStatus(W['W-85'], true); } }
+    }
+    async function saveDaily() {
+      S.daily.seq += 1;
+      var mine = S.daily.seq;
+      if (S.daily.date && S.daily.date !== todayJst()) {   /* 面を開いたまま日付が替わった＝前の日の値を次の日に書かない。読み直す */
+        S.daily = newDaily(); loadDaily(); return;
+      }
+      if ((bedIn.validity && bedIn.validity.badInput) || (wakeIn.validity && wakeIn.validity.badInput)) { setStatus(W['W-262'], true); return; }
+      var d = todayJst();
+      var body = { bed_time: S.daily.bed || null, wake_time: S.daily.wake || null, breakfast: S.daily.bf || null };
+      try {
+        await api('PUT', '/api/daily/' + d, body);
+        if (!S.loggedIn || mine !== S.daily.seq) { return; }
+        S.daily.date = d;
+        setStatus(L.saved, false);
+        paintShare();
+      } catch (e) { if (S.loggedIn) { setStatus(W['W-261'], true); } }
+    }
+    bedIn.addEventListener('change', function () { S.daily.bed = bedIn.value; saveDaily(); });
+    wakeIn.addEventListener('change', function () { S.daily.wake = wakeIn.value; saveDaily(); });
+    shareIn.addEventListener('change', function () { S.daily.shareDate = shareIn.checked ? todayJst() : null; paintShare(); });
     paintMood();
+    if (S.mood.open) { loadDaily(); } else { paintDaily(); }
     return c;
   }
 
@@ -1385,6 +1572,7 @@ var BRAND_FIGURES = true;
 
   function buildExport(c) {
     c.appendChild(el('p', null, W['W-91']));
+    c.appendChild(el('p', 'tiny', W['W-264']));
     var out = el('div'); out.setAttribute('role', 'status');
     var ex = btn(W['W-92'], 'btn-second', async function () {
       ex.disabled = true; clear(out);
@@ -1421,6 +1609,7 @@ var BRAND_FIGURES = true;
     var wipe = twoStep(btn(W['W-93'], 'btn-second'), W['W-94'], async function () {
       try {
         await api('DELETE', '/api/vault', { confirm: '消します', keep_receipts: choice === 'keep' });
+        S.daily = newDaily();
         done.textContent = W['W-94b'];
         later(function () { if (S.loggedIn) { showView('kiroku', true); } }, 2500);
       } catch (e) { done.textContent = errText(e); }
@@ -2027,6 +2216,7 @@ var BRAND_FIGURES = true;
     list(L.promiseDoesntTitle, L.promiseDoesnt);
     wrap.appendChild(el('h3', null, L.promiseSendTitle));
     wrap.appendChild(el('p', null, L.promiseSend));
+    wrap.appendChild(el('p', null, W['W-263']));
     wrap.appendChild(el('h3', null, L.promiseFullTitle));
     var full = el('div'); wrap.appendChild(full);
     openModal(W['W-160'], wrap);
@@ -2059,6 +2249,9 @@ var BRAND_FIGURES = true;
     clear(body);
     var t = el('div', 'tier');
     t.appendChild(el('div', 'tier-head', W['W-125'][name]));
+    if (name === 'renshu' && S.practice && S.practice.direction) {
+      t.appendChild(el('div', 'tier-dir', W['W-248'].replace('〔題〕', dirTitle(S.practice.direction))));
+    }
     var vis = el('div', 'visline');
     vis.appendChild(el('span', null, W['W-126']));
     vis.appendChild(linkbtn(W['W-151'], openVisible));
@@ -2083,6 +2276,14 @@ var BRAND_FIGURES = true;
       row.appendChild(btn(L.kakoEnd, 'btn-second sendbtn', openKakoEnd));
     }
     if (name === 'renshu') { state.textContent = W['W-136']; }
+    if (name === 'renshu') {
+      var again = btn(W['W-47'], 'btn-main sendbtn', function () {
+        var p = S.practice;
+        startRun(p ? p.direction : null, p ? p.limit : null);
+      });
+      again.id = 'tier-restart'; again.hidden = true;
+      row.appendChild(again);
+    }
     var send = btn(W['W-134'], 'btn-main btn-send sendbtn', function () { sendTier(name); });
     send.id = 'tier-send';
     row.appendChild(send);
@@ -2093,7 +2294,15 @@ var BRAND_FIGURES = true;
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.altKey) { ev.preventDefault(); sendTier(name); } });
     ta.addEventListener('input', function () { S.drafts[name] = ta.value; });
     paintLog(name);
-    if (name === 'renshu') { refreshCondBar(); }
+    if (name === 'renshu') { refreshCondBar(); paintShare(); syncReached(); }
+  }
+
+  /* といの かずに 達した後は、送る欄と送信の釦を 隠して、同じ場所に「はじめる」を置く。 */
+  function syncReached() {
+    var ta = $('tier-in'), send = $('tier-send'), again = $('tier-restart');
+    if (!ta || !send || !again) { return; }
+    var done = !!(S.rail === 'renshu' && S.practice && S.practice.reached);
+    ta.hidden = done; send.hidden = done; again.hidden = !done;
   }
 
   function paintLog(name) {
@@ -2139,6 +2348,7 @@ var BRAND_FIGURES = true;
       ask.appendChild(el('span', null, L.contOrStop));
       var cont = btn(L.keepGoing, 'btn-second sendbtn', function () { m.ask = 'continued'; paintLog('renshu'); var t = $('tier-in'); if (t) { t.focus(); } });
       var stop = btn(L.doRead, 'btn-second sendbtn', function () { m.ask = 'stopped'; paintLog('renshu'); });
+      if (S.practice && S.practice.reached) { cont.disabled = true; }
       add(ask, cont, stop);
       n.appendChild(ask);
     } else if (m.turnId && m.ask === 'stopped') {
@@ -2201,12 +2411,14 @@ var BRAND_FIGURES = true;
   function openVisible() {
     var wrap = el('div');
     add(wrap, el('p', null, W['W-152']), el('p', null, S.rail === 'kako' ? L.kakoLocal : W['W-153']));
+    if (S.rail === 'renshu') { wrap.appendChild(el('p', null, W['W-263'])); }
     openModal(W['W-126'].replace(/[:：].*$/, ''), wrap, { cls: 'narrow' });
   }
 
   async function sendTier(name) {
     var ta = $('tier-in');
     if (!ta || S.sending) { return; }
+    if (name === 'renshu' && S.practice && S.practice.reached) { return; }   /* 達した後は 送らない（Alt+Enter でも） */
     var text = ta.value;
     if (!text.trim()) { return; }
     if (name === 'kako') {
@@ -2231,19 +2443,32 @@ var BRAND_FIGURES = true;
     var state = $('tier-state'); if (state) { state.textContent = W['W-133']; }
     ta.value = ''; S.drafts.renshu = '';
     var cond = copy(S.cond);
+    var runAtSend = S.practice ? S.practice.run : null;
+    var body = { conditions: cond, text: text, direction: S.practice ? S.practice.direction : null };
+    if (shareActive()) { body.share_daily = true; body.daily_date = S.daily.shareDate; }   /* きょうの ことの 値は 送らない（サーバーが 箱から 読む） */
     pushMsg('renshu', { who: 'me', text: text, at: new Date().toISOString() });
     try {
-      var r = await api('POST', '/api/practice/turns', { conditions: cond, text: text });
+      var r = await api('POST', '/api/practice/turns', body);
       pushMsg('renshu', {
         who: 'them', at: new Date().toISOString(), readback: r.readback, question: r.question || null,
         turnId: r.turn_id, ask: 'open', model: r.demo ? ((r.model || '') + '（記録）') : r.model, ver: r.prompt_version || r.instruction_version, condText: condText(cond)
       });
+      /* 問いが返った回だけ 数える（空・失敗は 数えない）。送った時の区切りと同じ区切りの 答えだけ。 */
+      var pr = S.practice;
+      if (pr && runAtSend !== null && pr.run === runAtSend && typeof r.question === 'string' && r.question.trim() !== '') {
+        pr.count += 1;
+        if (pr.limit && pr.count >= pr.limit && !pr.reached) {
+          pr.reached = true;
+          pushMsg('renshu', { who: 'sys', text: W['W-247'] });
+        }
+      }
     } catch (e) {
       if (S.loggedIn) { pushMsg('renshu', { who: 'sys', text: W['W-142'] }); }
     }
     S.sending = false;
     send = $('tier-send'); if (send) { send.disabled = false; }
     state = $('tier-state'); if (state) { state.textContent = W['W-136']; }
+    syncReached();
   }
 
   /* ================================================================
