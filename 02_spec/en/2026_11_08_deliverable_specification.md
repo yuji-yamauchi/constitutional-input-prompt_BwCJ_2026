@@ -31,9 +31,9 @@ no stages, no assessment of condition.
 
 | | Measured | How it was counted |
 |---|---|---|
-| Tracked files | **82** | `git ls-files app_src`, with `__pycache__` removed |
-| Lines | **15,392** | Sum of lines across the `.py` `.js` `.css` `.html` `.txt` `.json` `.md` files in that list |
-| Tests | **371** | Lines in the test run output, of which **195 are negative controls** |
+| Tracked files | **95** | `git ls-files app_src`, with `__pycache__` removed |
+| Lines | **16,246** | Sum of lines across the `.py` `.js` `.css` `.html` `.txt` `.json` `.md` files in that list |
+| Tests | **399** | Lines in the test run output, of which **202 are negative controls** |
 | Dependencies | **Python 3.10 or later, and nothing else** | No `pip install`, no build step, no network call at startup |
 
 ---
@@ -42,10 +42,10 @@ no stages, no assessment of condition.
 
 ```
 app_src/
-├ vault_app/      the person's own container (25 files)
+├ vault_app/      the person's own container (27 files)
 │  ├ main.py appctx.py auth.py storage.py handoff.py law.py claude_client.py
 │  ├ routes_auth.py routes_records.py routes_practice.py routes_statement.py
-│  │  routes_handoff.py routes_daily.py
+│  │  routes_handoff.py routes_daily.py routes_kibun.py kibun.py
 │  ├ prompts/     arranger.txt / listener.txt / reader.txt   <- one file per role
 │  └ static/      index.html app.js app.css brand.css boards.css mobile.css mood.css
 ├ receiver_app/   the receiving side (8 files; never calls Claude)
@@ -54,7 +54,7 @@ app_src/
 ├ common/         contract.py httpkit.py ids.py vector.py words.py
 ├ demo/           demo material (all self-made; the people are invented)
 ├ tools/          scan_leaks / scan_words / scan_network / record_demo / unpack_demo
-└ tests/          11 test files, 371 tests
+└ tests/          14 test files, 399 tests
 ```
 
 ### One file per role, for the instructions given to Claude
@@ -114,8 +114,8 @@ app_src/
 |---|---|
 | Listening | **`127.0.0.1` only.** A request arriving under a different name is **refused** |
 | Outbound traffic | **One place only** — the listener (Claude's API). **The receiving side never calls it** |
-| Tests | **19** network tests, plus a gate (scanned 32 files, 0 hits) |
-| Keys | Environment variables only. **No value exists in the code or in the repository** (the gate scanned 80 files, 0 hits) |
+| Tests | **19** network tests, plus a gate (scanned 34 files, 0 hits) |
+| Keys | Environment variables only. **No value exists in the code or in the repository** (the gate scanned 93 files, 0 hits) |
 | Personal information | **0 in the repository.** All demo material is self-made, and **the people in it are invented** |
 
 The results of the checks, and what they do not cover, are in
@@ -233,7 +233,7 @@ state**.
 
 ## 8. The scope of this document
 
-- **Subject** — `app_src/` (82 tracked files) and the documents in the submitted
+- **Subject** — `app_src/` (95 tracked files) and the documents in the submitted
   repository
 - **Pass criterion** — none. This is a specification, not a check. The checks are in
   [`10_inspection/`](../../10_inspection/)

@@ -9,4 +9,4 @@ SVG は Claude に送れません（画像は jpeg / png / webp だけ）。デ�
 鍵なしのデモ（`CIP_DEMO_MODE`）が返す、Claude の応答の記録。`<役>/default.json` が、記録の無い入力に返る応答です。
 入力の sha256 の先頭 16 字の名の JSON が在れば、そちらが先に返ります。
 
-いまの `default.json` は仮の物（手書き・`recorded_from_live: false`）です。作成者の鍵で `python3 -B -m app_src.tools.record_demo` を 1 回回すと、`demo/record_inputs.json` の入力で本物の Claude を呼び、応答を `recorded_from_live: true` で書き直します（`default.json` も置き換わります）。全部が本物の記録になると、画面の上の帯の字が「仮の物です」から「録画用に記録した物です」に変わります。
+いまの `default.json` は仮の物（手書き・`recorded_from_live: false`）です。作成者の鍵で `python3 -B -m app_src.tools.record_demo` を 1 回回すと、`demo/record_inputs.json` の入力で本物の Claude を呼び、応答を `recorded_from_live: true` で書き直します（`default.json` も置き換わります）。全部が本物の記録になると、画面の上の帯の字が「用意した 物です」から「録画用に記録した物です」に変わります。

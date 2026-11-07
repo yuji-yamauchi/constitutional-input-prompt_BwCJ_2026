@@ -167,7 +167,19 @@ class N_Corpus(_Base):
             self.assertIsNone(c.match_verbatim(t), repr(t))
 
     def test_shipped_example_is_not_loaded(self):
-        self.assertEqual(law.load_corpus(os.path.join(APP_ROOT, "law_corpus")), {})      # 見本は false = 読まれない
+        # 作成者が読み合わせて true にした条だけが読まれる。見本（名が _ で始まる）は読まれない。
+        d = os.path.join(APP_ROOT, "law_corpus")
+        got = law.load_corpus(d)
+        self.assertNotIn("example-0001", got)
+        want = []
+        for fn in sorted(os.listdir(d)):
+            if fn.endswith(".json") and not fn.startswith("_"):
+                with open(os.path.join(d, fn), encoding="utf-8") as f:
+                    j = json.load(f)
+                if j.get("verified_by_person") is True:
+                    want.append(j["id"])
+        self.assertTrue(want)
+        self.assertEqual(sorted(got), want)
 
     def test_login_required(self):
         e = self.env()

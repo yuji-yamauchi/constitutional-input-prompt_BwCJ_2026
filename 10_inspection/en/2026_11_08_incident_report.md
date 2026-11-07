@@ -1,7 +1,7 @@
 # Incident report
 
 - Period: **2026-11-02 (kick-off, 12:00) to 2026-11-08 01:0x JST**
-- Incidents recorded: **14**
+- Incidents recorded: **15**
 
 > **Why this report exists.**
 >
@@ -23,7 +23,7 @@
 | Letters between seats (2026-11-02–2026-11-08) | **135** | Letter files placed during the period |
 | Letters whose failure field holds **a real declaration** | **15** | The same letters parsed mechanically, counting those whose failure field is not "none" |
 | Letters that have a failure field at all (including "none") | **78** | |
-| Incidents recorded here | **14** | Taken from the failure fields, the bodies of the daily reports, and the primary record of the conversations |
+| Incidents recorded here | **15** | Taken from the failure fields, the bodies of the daily reports, and the primary record of the conversations |
 
 That **63 letters say "none"** is also part of the record.
 **Because there is a field for it, "none" gets written when there is none.**
@@ -36,7 +36,7 @@ Sorted by cause, **the same kinds repeat.**
 
 | Kind | Count | What it is |
 |---|---|---|
-| **A. Wrote it without checking** | **7** | Did not go to the original text, the actual artefact, or the clock — asserted from memory or from another seat's wording |
+| **A. Wrote it without checking** | **8** | Did not go to the original text, the actual artefact, or the clock — asserted from memory or from another seat's wording |
 | **B. Skipped a step in the order** | **4** | Skipped the check before placing, the notice on starting, the pull, or an acceptance condition |
 | **C. A wrong assumption about a tool** | **3** | Line endings, time zone, character encoding, a hard-coded date — the environment was not what was assumed |
 
@@ -46,7 +46,7 @@ fragments at hand, without checking.
 
 ---
 
-## 2. A. Wrote it without checking (7)
+## 2. A. Wrote it without checking (8)
 
 ### A-1 A letter was never in the record, so a request never arrived
 
@@ -61,8 +61,10 @@ fragments at hand, without checking.
   deadline passed without it ever arriving.**
 - **Cause** — the night before, the gate seat **counted "5 unrecorded letters are
   present" and then neither read nor sent them**
-- **Fix** — the gate seat took the comparison over and did it (5 exact, 2 differing
-  by one character), and left the declaration in the same record
+- **Fix** — the gate seat took the comparison over and did it (the result at that time:
+  5 exact, 2 differing by one character; for the current result see
+  [the inspection report](2026_11_08_inspection_report.md) §3), and left the declaration
+  in the same record
 - **What changes** — **the moment an unrecorded letter is counted, record and send
   it, on the spot.** Reading can come later.
   **"Counted" is not "delivered."**
@@ -138,6 +140,30 @@ fragments at hand, without checking.
 - **Found by** — a model from another maker. The seat accepted it and corrected
 - **What changes** — **a value read off a figure does not count as primary
   verification on the strength of having looked at it.**
+
+### A-8 Measuring the working copy instead of the repository being submitted
+
+- **Written on the night of 2026-11-07, discovered 2026-11-08 02:1x — about four hours**
+- The gate seat took its measurements from **the copy in the implementation workspace**
+  and wrote them up as being about **the repository being submitted.** Two separate
+  things were wrong at once, from the one cause.
+  1. **The marks on the 7 statutory articles** — written up as "all 7 carry the mark."
+     **In the repository being submitted, none of the 7 did** — meaning no statute
+     would have reached the screen at all
+  2. **The 60 questions** — the README said "real; they run from a file."
+     **The repository being submitted contained no implementation of them at all**
+     (the matching files were counted: zero)
+- **Cause** — **a number measured in one copy was written up as being about the other.**
+  This is type A exactly. Both things had genuinely been reported that way;
+  **what was missing was putting that report against the artefact being submitted.**
+- **Found by** — the gate seat, after the author said to go and read the implementation
+  seat's diary, which led to comparing the two copies file by file
+- **Fix** — 29 files were transferred into the repository being submitted and every file
+  compared afterwards to confirm they agree. The statutes were **re-measured on the side
+  being submitted**, and that result is in the
+  [inspection report](2026_11_08_inspection_report.md)
+- **What changes** — **when writing the state of the artefact, measure the artefact.**
+  Where two copies exist, **write which one the number came from, on the same line.**
 
 ---
 

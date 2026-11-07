@@ -406,6 +406,18 @@ body[data-figures="0"] .figure { display: none !important; }
   .start-pick .pick-row { padding-top: 4px; }
   .start-pick .pick-row .btn { min-height: 40px; padding: 6px 18px; }
 }
+/* 第 9 弾: きょうの 気分（60 問）＝器の 問いの 吹き出し（.msg.sys.kq）と、欄の 頭の 入口（.kibun-intro） */
+.msg.sys.kq { align-self: flex-start; max-width: 88%; font-size: 13px; background: var(--ivory); border-color: var(--line); }
+.kibun-row .linkbtn { font-size: 11px; }
+.kibun-intro .msg.sys { align-self: flex-start; max-width: 88%; }
+.kibun-intro .daily-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 6px; margin: 0; padding: 6px 8px; align-items: end; }
+.kibun-intro .daily-time { width: 100%; min-width: 0; box-sizing: border-box; }
+.kibun-intro .daily-fields .field-label { margin: 0 0 2px; }
+.kibun-intro .daily-fields .chips { margin: 0; gap: 4px; }
+.kibun-intro .daily-fields .chip-btn { padding: 4px 8px; }
+.kibun-intro .daily-time { min-height: 36px; padding: 6px 6px; }
+.kibun-intro .pick-row .status { margin: 0; font-size: 11px; }
+.kibun-intro .tiny { margin: 0; font-size: 10.5px; line-height: 1.5; }
 .fig-slot { margin: 0 0 8px; }
 .fig-slot:empty { display: none; }
 .board-slot:empty { display: none; }

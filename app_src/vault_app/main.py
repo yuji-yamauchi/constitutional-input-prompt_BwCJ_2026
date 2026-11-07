@@ -26,7 +26,7 @@ STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 DEFAULT_PORT = 8765
 DEFAULT_PORT_BASE_URL = "http://127.0.0.1:8766"
 IDLE_SECONDS = 15 * 60
-OPTIONAL_ROUTES = ("routes_practice", "routes_statement", "routes_handoff", "routes_daily")
+OPTIONAL_ROUTES = ("routes_practice", "routes_statement", "routes_handoff", "routes_daily", "routes_kibun")
 PACKAGE = "app_src.vault_app"
 
 

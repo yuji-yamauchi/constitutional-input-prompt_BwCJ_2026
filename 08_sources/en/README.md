@@ -35,7 +35,11 @@ The Japanese original is at [`../ja/`](../ja/).
 
 | | |
 |---|---|
-| [`../ja/2026_11_07_law_corpus_verbatim_check.md`](../ja/2026_11_07_law_corpus_verbatim_check.md) | The seven statutory provisions this tool holds, compared **character by character against the original text at Japan's official statute service (e-Gov)**. Japanese only — the provisions themselves exist only in Japanese |
+| [`2026_11_08_law_corpus_verbatim_check_v2.md`](2026_11_08_law_corpus_verbatim_check_v2.md) | **Second edition — the current report.** The seven statutory provisions this tool holds, put against the original text from Japan's official statute service. **6 exact / 1 exact once numbering is set aside / 0 differing.** What the first edition got wrong is written at the top of this one |
+| [`../ja/2026_11_07_law_corpus_verbatim_check.md`](../ja/2026_11_07_law_corpus_verbatim_check.md) | The first edition, in Japanese. **It contains two errors and is kept, not deleted** |
+
+**A corrected edition does not overwrite the one it corrects.** Deleting the edition
+that was wrong would delete the record of what was wrong.
 
 ---
 

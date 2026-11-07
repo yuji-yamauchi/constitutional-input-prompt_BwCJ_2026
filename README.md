@@ -169,12 +169,12 @@ inspection reports and this README — was produced through Claude Code.
 
 Two reports, in [`10_inspection/`](10_inspection/):
 
-- **The inspection report** — 371 tests on the container (195 of them negative
+- **The inspection report** — 399 tests on the container (202 of them negative
   controls), 3 gates, the 7 statutory articles against the original text, and 56
   documents in this repository. Every section declares its own scope, including
   **what is known to be out of scope** — among it the one closed loop we could not
   get out of: these documents were written and inspected by the same seat.
-- **The incident report** — the **14 things that went wrong** while building this,
+- **The incident report** — the **15 things that went wrong** while building this,
   with who found each one. Half of them were the same failure: **wrote it without
   checking.** The operations that were stopped are written down as stopped.
 
@@ -322,10 +322,10 @@ Two tracks, and they are different:
 
 [`10_inspection/`](10_inspection/) に二本あります。
 
-- **検品報告書** — 器の検査 371 本（うち**陰性対照 195 本**）・門 3 本・法令 7 条の原文との突合・
-  このリポジトリの文書 56 本。**各節に射程の自己申告**つきで、**既知の射程外**も書いています。
+- **検品報告書** — 器の検査 399 本（うち**陰性対照 202 本**）・門 3 本・法令 7 条の原文との突合・
+  このリポジトリの文書 67 本。**各節に射程の自己申告**つきで、**既知の射程外**も書いています。
   そこには**抜け出せなかった閉ループ**も入っています＝**これらの文書は、書いた席が自分で検査しています。**
-- **インシデント報告書** — 作っているあいだに起きた**失敗 14 件**を、誰が見つけたかとともに。
+- **インシデント報告書** — 作っているあいだに起きた**失敗 15 件**を、誰が見つけたかとともに。
   **半分が同じ失敗**＝**確かめずに書いた。** **止められた操作も、止められたと書いています。**
 
 **失敗 0 は、記録していないことの別名です。**

@@ -6,6 +6,7 @@
 - 指示の文の版（聞き役だけ v0.3.3）
 - 画面の字（新しい W）の走査・画面の部品の静的な確かめ
 """
+import datetime
 import hashlib
 import json
 import os
@@ -25,6 +26,7 @@ PROMPTS = os.path.join(APP_ROOT, "vault_app", "prompts")
 STATIC = os.path.join(APP_ROOT, "vault_app", "static")
 COND = {"amount": "ふつう", "split": "文ごと", "ease": "やさしい", "length": "みじかく", "input": "文字"}
 DAY = ids.now_jst()[:10]          # きょう（日本時間）＝添えられるのは その日の分だけ なので、固定の日付にしない
+DAY2 = (datetime.date.fromisoformat(DAY) - datetime.timedelta(days=1)).isoformat()   # きょうの 前の日＝「きょうと 違う日」を 必ず 作る（2 日分を 数える 検査に 使う）
 BED, WAKE = "23:47", "06:13"
 NEW_W = ["W-173", "W-174", "W-175", "W-176", "W-177", "W-178", "W-179", "W-241", "W-242", "W-243", "W-244", "W-245",
          "W-246", "W-247", "W-248", "W-250", "W-251", "W-252", "W-253", "W-254", "W-255", "W-256", "W-257", "W-258",
@@ -280,24 +282,24 @@ class T_DailyStorage(_Base):
     def test_manifest_zip_and_wipe(self):
         s = self.make()
         v = s.app.vault
-        self.assertEqual(v.read_manifest()["counts_extra"], {"daily": 0})
+        self.assertEqual(v.read_manifest()["counts_extra"], {"daily": 0, "kibun": 0})
         self.put(s)
-        self.put(s, day="2026-11-07", bed=None, wake="07:00", bf=None)
+        self.put(s, day=DAY2, bed=None, wake="07:00", bf=None)
         m = v.read_manifest()
-        self.assertEqual(m["counts_extra"], {"daily": 2})
+        self.assertEqual(m["counts_extra"], {"daily": 2, "kibun": 0})
         self.assertEqual(m["counts"], {k: 0 for k in m["counts"]})      # 8 鍵は そのまま
         path, counts = v.export_zip(os.path.join(os.path.dirname(v.root), "out"))
         with zipfile.ZipFile(path) as z:
             names = z.namelist()
             self.assertIn("daily/%s.json" % DAY, names)
-            self.assertIn("daily/2026-11-07.json", names)
+            self.assertIn("daily/%s.json" % DAY2, names)
             self.assertEqual(json.loads(z.read("daily/%s.json" % DAY).decode("utf-8"))["bed_time"], BED)
-            self.assertEqual(json.loads(z.read("manifest.json").decode("utf-8"))["counts_extra"], {"daily": 2})
+            self.assertEqual(json.loads(z.read("manifest.json").decode("utf-8"))["counts_extra"], {"daily": 2, "kibun": 0})
         self.assertEqual(storage.verify_export_zip(path), counts)
         self.assertEqual(sorted(counts), sorted(m["counts"]))
         v.wipe()
         self.assertFalse(os.path.isdir(os.path.join(v.root, "daily")))
-        self.assertEqual(v.read_manifest()["counts_extra"], {"daily": 0})
+        self.assertEqual(v.read_manifest()["counts_extra"], {"daily": 0, "kibun": 0})
 
 
 class T_ListenerInput(_Base):
@@ -382,21 +384,18 @@ class T_Screen(unittest.TestCase):
         self.assertNotIn("mood-card", js)
         self.assertIsNone(_w_value(js, "W-249"))
 
-    def test_direction_cards(self):
+    def test_home_scene_button_opens_the_chat(self):
+        # v0.9: ホームの「きょうの気分」は 絵の 釦だけ（押すと 今はなしたいこと の チャットが 開く）。向きの 札・数の 札・時刻の 欄・「聞き役に 伝える」は 無い。
+        # （v0.3.3〜v0.8 の test_direction_cards＝4 枚の 向きの 札の 検査は、面を なくした ので この 検査に 置き換えた）
         js = _read("app.js")
         m = re.search(r"function buildMood\(\) \{(.*?)\n  function openRail", js, re.S)
         body = m.group(1)
-        self.assertEqual(len(re.findall(r"\bboard\(", body)), 4)
-        for pair in ("board('04', 'seat-empty', 'board-scene')", "board('03', 'seat-empty', 'board-scene')",
-                     "board('02', 'empty', 'board-scene')", "board('02', 'filled', 'board-120')"):
-            self.assertIn(pair, body)
-        self.assertIn("setAttribute('aria-pressed'", body)
-        self.assertNotIn("figure(", body)                                  # 札に キャラは 置かない
+        self.assertIn("'scene-btn'", body)
+        self.assertIn("openRail('renshu')", body)
+        self.assertEqual(len(re.findall(r"\bboard\(", body)), 0)
+        for bad in ("dir-card", "S.daily", "shareDate", "daily-time", "figure(", "W['W-257']"):
+            self.assertNotIn(bad, body)
         self.assertNotRegex(body, "てくちゃん|きろちゃん|ことちゃん|まなちゃん")
-        css = _read("app.css")
-        self.assertRegex(css, r"\.dir-pic \{[^}]*aspect-ratio: 600 / 314")
-        self.assertRegex(css, r'body\[data-figures="0"\] \.dir-pic \{ display: none; \}')
-        self.assertIn(".dir-pic-tile { background: var(--ivory)", css)
 
     def test_send_never_carries_the_daily_values(self):
         js = _read("app.js")

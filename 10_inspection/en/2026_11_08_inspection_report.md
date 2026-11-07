@@ -19,10 +19,10 @@
 
 | Check | Result |
 |---|---|
-| The container's tests (371) | **369 PASS / 0 FAIL / 2 SKIP** |
+| The container's tests (399) | **396 PASS / 1 FAIL / 2 SKIP** (what the FAIL is: §1) |
 | The container's gates (3) | **0 hits** (keys and URLs / words kept off the screen / outbound traffic) |
-| 7 statutory articles vs. the original text | **5 exact / 2 differ by one character** (the body text matches exactly in both) |
-| The gate over this repository's documents (65) | **165 relative links, 0 unreachable.** **Three categories left ringing** (§4) |
+| 7 statutory articles vs. the original text | **6 exact / 1 exact once numbering is set aside / 0 that differ**. All 7 carry the mark |
+| The gate over this repository's documents (67) | **0 unreachable relative links.** **Three categories left ringing** (§4) |
 | The research index (112 topics) | **0 duplicates / 0 unassigned / 0 names that do not exist** |
 
 **Every check had its negative control run first.** That a failing input actually
@@ -30,7 +30,7 @@ fails is established before any PASS is used as evidence.
 
 ---
 
-## 1. The container's tests — 371
+## 1. The container's tests — 399
 
 ### Breakdown (N = negative control, T = the real thing)
 
@@ -43,18 +43,21 @@ fails is established before any PASS is used as evidence.
 | Writing practice | 16 | 12 |
 | Statements and statutes | 16 | 12 |
 | The container's storage | 16 | 19 |
-| Version 0.3.3 | 15 | 15 (1 SKIP) |
-| Version 0.3 | 14 | 25 (1 SKIP) |
+| Version 0.3.3 | 15 | 16 (1 SKIP) |
+| Version 0.3 | 14 | 26 (1 SKIP) |
 | The words on screen | 9 | 11 |
 | Network | 5 | 14 |
-| **Total** | **195** | **176** |
+| Today's mood (the 60 questions) | 5 | 14 (**1 FAIL**) |
+| Version 0.10 | 1 | 4 |
+| Version 0.11 | 1 | 3 |
+| **Total** | **202** | **197** |
 
 **How this was counted:** each line of the test run output, split by the class-name
 prefix (`N_` / `T_`), at 01:0x.
 
 ### This is the point — there are more negative controls than real tests
 
-> **195 of them check that a broken input actually fails.**
+> **202 of them check that a broken input actually fails.**
 
 Establishing that the checks *fail* matters more than establishing that they pass.
 It is how **a PASS over an empty set ("0 hits" with 0 files examined) is kept out of
@@ -70,6 +73,19 @@ break the contract:
 - is a note rejected when its writer is not the person
 - is a mismatched count rejected
 
+### The 1 FAIL (it is not hidden)
+
+| | |
+|---|---|
+| Which | Of the tests on today's mood (the 60 questions), the one that checks **the permissions of the saved file** |
+| Measured | `AssertionError: 438 != 384`. **384 is POSIX `0600`; 438 is what Windows returns** |
+| Cause | **Not a defect in the container, but how the test is written.** Permission bits are POSIX-only, yet **this one test carries no guard for the environment** |
+| Evidence | The **two sibling tests** that look at the same thing (the SKIPs below) **are skipped for exactly that reason** |
+| Now | **The implementing seat has been asked to write it the way the two siblings are written** (2026-11-08 02:2x) |
+| Why it matters now | The README explains how to run it, so **anyone running it on Windows sees this FAIL** |
+
+**Something unfixed is not written up as fixed.** This report goes out with 1 FAIL.
+
 ### The 2 SKIPs (with their reason)
 
 | | Why |
@@ -77,15 +93,15 @@ break the contract:
 | The file-permission test (0600 / 0700) | **Permission bits are POSIX-only** — not examined in this environment (Windows) |
 | The daily-record file-permission test | The same |
 
-**SKIPs are not counted as PASSes.** On POSIX this should read 371/371, but
+**SKIPs are not counted as PASSes.** On POSIX all 399 should pass, but
 **the measurement in this report was taken on Windows.**
 
 ### Scope of this section
 
-- **Subject** — 11 test files, 371 tests
+- **Subject** — 14 test files, 399 tests
 - **Items** — the container's behaviour: storage, contract, hand-over, practice,
   statutes, the words on screen, network, permissions
-- **Pass criterion** — 0 FAIL. A SKIP is allowed when its reason is written down
+- **Pass criterion** — 0 FAIL. A SKIP is allowed when its reason is written down. **This is not met at present** (1 FAIL, above)
 - **Known to be out of scope**
   1. **File permissions are not examined in this environment**
   2. **The appearance of the screen** (breakage, colour, placement) is not checked
@@ -100,9 +116,9 @@ break the contract:
 
 | Gate | What it looks for | Subject | Result |
 |---|---|---|---|
-| Key scan | Key shapes, identifier shapes, outbound URLs, mail shapes | **80 files** | **0 hits** |
-| Word scan | Words kept off the screen (points, ranking, improvement, and others) | **23 files** | **0 hits** |
-| Network scan | Imports that reach outward | **32 files** | **0 hits** |
+| Key scan | Key shapes, identifier shapes, outbound URLs, mail shapes | **93 files** | **0 hits** |
+| Word scan | Words kept off the screen (points, ranking, improvement, and others) | **32 files** | **0 hits** |
+| Network scan | Imports that reach outward | **34 files** | **0 hits** |
 
 **All three had their negative controls run first.** The network scan, for instance,
 confirms both that it fires on an outbound import and that it does **not** fire on a
@@ -124,14 +140,20 @@ Both the tests and the gate watch this (19 network tests plus the gate).
 - **Retrieval** — the **XML as served**, from the national statute API.
   **No summary and no screen-reading were used** (a summary cannot be used for a
   character-by-character comparison)
-- **Method of comparison** — **exact match** of the strings with all whitespace and
-  line breaks removed from both sides
-- **Result** — **5 exact / 2 differ by one character**
-- **What the one-character difference is** — one copy **omits the item number**;
-  the other **includes the paragraph number**. In other words, **whether the number
-  is included is not consistent across the 7.**
-  **The body text matches exactly in both**, so neither differs from the original
-  (a number is part of the article's structure, not of its body)
+- **Method of comparison** — every character is pulled out of the original XML and
+  flattened into **one string with all whitespace removed**. The copy is flattened the
+  same way, and the question asked is **whether it occurs in that string as it stands**
+- **Negative control** — a string with **one character added** to the copy was put
+  through the same method first, and confirmed **not to occur** (so the detector is alive)
+- **Result** — **6 exact / 1 exact once numbering is set aside / 0 that differ**
+- **What "once numbering is set aside" means** — Employment Promotion Act, Article 36-4.
+  The copy **joins paragraphs 1 and 2 into one string and does not include the paragraph
+  number** (the author's decision, 2026-11-07). The original carries that number **in the
+  middle of the text**, so **as a continuous string there is a difference.**
+  **The body text itself does not differ by a single character.**
+- **The limit of this method** — where a number sits **at the front** of an article (an
+  item heading, for instance), a copy that omits it still occurs in the string.
+  **This method cannot tell you whether the handling of numbers was made consistent**
 
 The per-article character counts and verdicts are in
 [`08_sources/`](../../08_sources/).
@@ -140,8 +162,15 @@ The per-article character counts and verdicts are in
 
 > **All 7 carry `verified_by_person: true`.** The author read each copy against the
 > original text and set the mark.
-> Confirmed from the record's diff: **only the mark lines changed. Not one character
-> of the articles moved.**
+> **An article without the mark does not reach the screen.** The one sample file is
+> left unmarked, and so **sits on the side that is never read, as its name says.**
+
+**At one point the wrong repository was being measured here.** The author set the marks
+on the working side, while **in the repository being submitted all 7 were unmarked** —
+that is, no statute would have reached the screen at all. On 2026-11-08 the two were
+brought into line, and **the table above is the result of measuring the repository being
+submitted.** This mistake is the same kind as type A in the
+[incident report](2026_11_08_incident_report.md).
 
 ### Scope of this section
 
@@ -153,12 +182,12 @@ The per-article character counts and verdicts are in
 
 ---
 
-## 4. The gate over this repository's documents — 65
+## 4. The gate over this repository's documents — 67
 
 | Item | Result |
 |---|---|
 | Negative control | **6/6 fired as expected** |
-| Relative links | **165, 0 unreachable** |
+| Relative links | **0 unreachable** (all of them) |
 | Bidi and zero-width characters | **0** |
 | Words kept off the screen | **0** |
 | Place names, postcodes, dialling codes | **0** |
@@ -169,14 +198,14 @@ The per-article character counts and verdicts are in
 |---|---|---|
 | The internal emphasis mark | **4,138 across 16 files** | **All 16 are inside `01_vision/`** (12 original theory documents plus 4 guide files). **0 outside `01_vision/`** (verified mechanically). The originals are published with a stated declaration that they are untouched, and the guide says in as many words: "this mark is an emphasis mark used internally" |
 | Names of internal working locations | **31 across 9 files** | All inside `01_vision/rinen/`. The guide already declares: **"the folder and file names point at places that are not public. They cannot be followed."** Traced verbatim, each reference turns out to be **a line stating that the content itself is not written here** |
-| Strings shaped like health figures | **6 across 5 files** | **All six are false positives.** Traced verbatim: four on the side of the original theory documents (one date notation, two ruling numbers, one chapter number), and **two instances of this report's own "371 / 371"**. **Not one is a figure such as a blood pressure** |
+| Strings shaped like health figures | **it rings** | **Every hit is a false positive.** Traced verbatim: four on the side of the original theory documents (one date notation, two ruling numbers, one chapter number). **Not one is a figure such as a blood pressure** |
 
 **The detector has not been weakened.** It is left ringing, with the reason for
 leaving it recorded.
 
 ### Scope of this section
 
-- **Subject** — the **65** tracked `.md` files outside `app_src/`
+- **Subject** — the **67** tracked `.md` files outside `app_src/`
 - **Items** — the five in the table above, plus whether relative links resolve
 - **Pass criterion** — 0 hits in newly placed documents; every pre-existing hit
   traced to source with the reason recorded
@@ -213,7 +242,7 @@ leaving it recorded.
 
 ## 6. The scope of this report
 
-- **Subject** — the container `app_src/` (82 tracked files, 15,392 lines); 65
+- **Subject** — the container `app_src/` (95 tracked files, 16,246 lines); 67
   documents in this repository; 7 statutory articles; the 112-topic research index
 - **Items** — §1 through §5
 - **Pass criterion** — as written in each section

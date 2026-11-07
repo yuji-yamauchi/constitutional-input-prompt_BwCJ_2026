@@ -159,13 +159,17 @@ def count_from_files(names, read):
 
 
 def count_extra_from_files(names):
-    """cip-export-v1 の 8 鍵の外の数え物（counts_extra）。いまは きょうの こと（daily/<日付>.json）だけ。"""
+    """cip-export-v1 の 8 鍵の外の数え物（counts_extra）。きょうの こと（daily/<日付>.json）と きょうの 気分（kibun/<日付>.json）の 日の 数。"""
     n = 0
+    k = 0
     for name in names:
         parts = name.split("/")
-        if len(parts) == 2 and parts[0] == "daily" and parts[1].endswith(".json") and not parts[1].startswith("."):
-            n += 1
-    return {"daily": n}
+        if len(parts) == 2 and parts[1].endswith(".json") and not parts[1].startswith("."):
+            if parts[0] == "daily":
+                n += 1
+            elif parts[0] == "kibun":
+                k += 1
+    return {"daily": n, "kibun": k}
 
 
 def _check_date(value):
@@ -201,8 +205,9 @@ def verify_export_zip(zip_path):
     extra = manifest.get("counts_extra")
     if not isinstance(extra, dict):
         extra = {}
-    if extra.get("daily", 0) != counted_extra["daily"]:          # 欄が無い＝0 と読む（daily が在るのに欄が無ければ不一致）
-        raise ExportCountMismatch("manifest.counts_extra=%s 数え直し=%s" % (extra, counted_extra))
+    for k in ("daily", "kibun"):
+        if extra.get(k, 0) != counted_extra[k]:          # 欄が無い＝0 と読む（在るのに欄が無ければ不一致）
+            raise ExportCountMismatch("manifest.counts_extra=%s 数え直し=%s" % (extra, counted_extra))
     return counted
 
 
@@ -513,6 +518,63 @@ class Vault:
             })
             self.write_manifest()
             return self.get_daily(date)
+
+    # ---- きょうの 気分（kibun/<日付>.json・本人の箱。束には入れない。点を つけない）
+    def _kibun_path(self, date):
+        return self._p("kibun", _check_date(date) + ".json")
+
+    def get_kibun_day(self, date):
+        """その日の 回の 並び。無ければ 空。"""
+        row = _read_json(self._kibun_path(date))
+        runs = row.get("runs") if isinstance(row, dict) else None
+        return {"date": date, "runs": runs if isinstance(runs, list) else []}
+
+    def upsert_kibun_run(self, date, run_id, count, start_id, version, answers, finished):
+        """回を 1 つ 書く（run_id が None なら 新しく 作る・在れば 中身を 置き換える）。答えの 中身の 検査は 経路が 済ませている。
+        返り＝書いた 回。run_id が 在るのに 見つからなければ KeyError。"""
+        path = self._kibun_path(date)
+        with self._lock:
+            day = self.get_kibun_day(date)
+            now = ids.now_jst()
+            if run_id is None:
+                run = {"run_id": ids.new_id(), "started_at": now}
+                day["runs"].append(run)
+            else:
+                _check_id(run_id, "run_id")
+                found = [r for r in day["runs"] if isinstance(r, dict) and r.get("run_id") == run_id]
+                if not found:
+                    raise KeyError("回が無い: " + run_id)
+                run = found[0]
+            run["updated_at"] = now
+            run["finished_at"] = now if finished else None
+            run["count"] = int(count)
+            run["start_id"] = int(start_id)
+            run["version"] = version
+            run["answers"] = [{"id": int(a["id"]), "choice": a["choice"]} for a in answers]
+            _write_json(path, {"date": date, "runs": day["runs"]})
+            self.write_manifest()
+            return dict(run)
+
+    def kibun_last_answered_id(self):
+        """いちばん 新しく 書いた 回の、最後に 答えた 問いの id。何も 無ければ None（「前回の 続きから」の 材料）。"""
+        best = None
+        base = self._p("kibun")
+        try:
+            names = os.listdir(base)
+        except FileNotFoundError:
+            return None
+        for n in sorted(names):
+            if not n.endswith(".json") or n.startswith("."):
+                continue
+            row = _read_json(os.path.join(base, n))
+            runs = row.get("runs") if isinstance(row, dict) else None
+            for r in runs or []:
+                if not (isinstance(r, dict) and isinstance(r.get("answers"), list) and r["answers"]):
+                    continue
+                stamp = str(r.get("updated_at") or "")
+                if best is None or stamp >= best[0]:      # 同じ 秒なら 後に 並ぶ 回（新しい 方）
+                    best = (stamp, r["answers"][-1].get("id"))
+        return best[1] if best else None
 
     # ---- C: 意思表出文
     def save_statement(self, item):

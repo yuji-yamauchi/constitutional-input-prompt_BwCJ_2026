@@ -44,8 +44,8 @@ def _external_refs(text):
 BOARD_VARS = ("02-empty-tile", "02-filled-tile", "02-empty-scene", "02-filled-scene",
               "03-seat-empty-tile", "03-seat-taken-tile", "03-seat-empty-scene", "03-seat-taken-scene",
               "04-seat-empty-scene")
-# board( を呼んでよい関数（ホームの面の buildMood を足した。renderHome の本文には置かない）
-BOARD_CALLERS = ("renderHikidashi", "renderSeiri", "loadRecordsInto", "buildMood")
+# board( を呼んでよい関数（renderHome の本文には置かない。v0.9 で ホームの 気分の 面を なくした ので buildMood は 外した）
+BOARD_CALLERS = ("renderHikidashi", "renderSeiri", "loadRecordsInto")
 SEAT_TEXT = "いっしょに いる 人が います"
 
 
@@ -233,8 +233,11 @@ class N_Brand(unittest.TestCase):
         moved = re.sub(r"(\n  function renderHome\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", moved, count=1)
         self.assertNotEqual(moved, js)
         self.assertIn("renderHome", _board_calls_outside(moved, BOARD_CALLERS))
-        # buildMood からの board( は許す・別の関数（buildTier）からは許さない
+        # 許す 3 関数の 外（buildTier・buildMood）からは許さない
         self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
+        moved3 = re.sub(r"(\n  function buildMood\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", js, count=1)
+        self.assertNotEqual(moved3, js)
+        self.assertIn("buildMood", _board_calls_outside(moved3, BOARD_CALLERS))
         moved2 = re.sub(r"(\n  function buildTier\([^\n]*\n)", r"\1    board('02', 'empty', 'board-160');\n", js, count=1)
         self.assertNotEqual(moved2, js)
         self.assertIn("buildTier", _board_calls_outside(moved2, BOARD_CALLERS))
@@ -303,7 +306,7 @@ class T_Brand(unittest.TestCase):
     def test_board_only_in_hikidashi_and_seiri(self):
         js = _read("app.js")
         self.assertEqual(_board_calls_outside(js, BOARD_CALLERS), [])
-        self.assertIn("board(", js[js.index("function buildMood("):js.index("function openRail(")])
+        self.assertNotIn("board(", js[js.index("function buildMood("):js.index("function openRail(")])   # v0.9: 絵の 釦だけ
         for name in ("renderHome", "renderRenshu", "renderWatasu", "renderKiroku"):
             m = re.search(r"function %s\(" % name, js)
             if not m:

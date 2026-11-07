@@ -28,9 +28,9 @@
 
 | | 実測 | 数え方 |
 |---|---|---|
-| 追跡ファイル | **82 本** | `git ls-files app_src` から `__pycache__` を除いて数えた |
-| 行数 | **15,392 行** | 同じ一覧の `.py` `.js` `.css` `.html` `.txt` `.json` `.md` の行数の合計 |
-| 検査 | **371 本** | 検査の実行結果の行数（うち**陰性対照 195 本**） |
+| 追跡ファイル | **95 本** | `git ls-files app_src` から `__pycache__` を除いて数えた |
+| 行数 | **16,246 行** | 同じ一覧の `.py` `.js` `.css` `.html` `.txt` `.json` `.md` の行数の合計 |
+| 検査 | **399 本** | 検査の実行結果の行数（うち**陰性対照 202 本**） |
 | 依存 | **Python 3.10 以上だけ** | `pip install` 無し・ビルド無し・起動時の通信 無し |
 
 ---
@@ -39,10 +39,10 @@
 
 ```
 app_src/
-├ vault_app/      本人の器（25 本）
+├ vault_app/      本人の器（27 本）
 │  ├ main.py appctx.py auth.py storage.py handoff.py law.py claude_client.py
 │  ├ routes_auth.py routes_records.py routes_practice.py routes_statement.py
-│  │  routes_handoff.py routes_daily.py
+│  │  routes_handoff.py routes_daily.py routes_kibun.py kibun.py
 │  ├ prompts/     arranger.txt / listener.txt / reader.txt   ← 役ごとの指示文
 │  └ static/      index.html app.js app.css brand.css boards.css mobile.css mood.css
 ├ receiver_app/   受け口（8 本・Claude を一度も呼ばない）
@@ -51,7 +51,7 @@ app_src/
 ├ common/         contract.py httpkit.py ids.py vector.py words.py
 ├ demo/           デモ素材（すべて自作・架空の人物）
 ├ tools/          scan_leaks / scan_words / scan_network / record_demo / unpack_demo
-└ tests/          検査 11 ファイル・371 本
+└ tests/          検査 14 ファイル・399 本
 ```
 
 ### 役ごとの指示文は「ファイル 1 本 = 1 役」
@@ -101,8 +101,8 @@ app_src/
 |---|---|
 | 待ち受け | **`127.0.0.1` だけ**。別の名で来たリクエストは**断る** |
 | 外への通信 | **聞き役の 1 か所だけ**（Claude の API）。**受け口の側は一度も呼ばない** |
-| 検査 | 通信の検査 **19 本** ＋ 門（走査 32 ファイル → 0 件） |
-| 鍵 | 環境変数のみ。**値はコードにも repo にも無い**（門が走査 80 ファイル → 0 件） |
+| 検査 | 通信の検査 **19 本** ＋ 門（走査 34 ファイル → 0 件） |
+| 鍵 | 環境変数のみ。**値はコードにも repo にも無い**（門が走査 93 ファイル → 0 件） |
 | 個人情報 | **repo に 0**。デモ素材はすべて自作・**架空の人物** |
 
 検査の結果と、その射程は [`10_inspection/`](../../10_inspection/) にあります。
@@ -203,7 +203,7 @@ Claude を使うのは **三つだけ**です。
 
 ## 8. この文書の射程
 
-- **対象** — `app_src/`（追跡 82 本）と、提出するリポジトリの文書
+- **対象** — `app_src/`（追跡 95 本）と、提出するリポジトリの文書
 - **合否基準** — 無し。これは仕様書であって、検査ではありません。検査は [`10_inspection/`](../../10_inspection/)
 - **既知の射程外**
   1. **器は提出の直前まで変わりえます。** この文書の数は 2026-11-08 01:0x の実測です

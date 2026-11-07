@@ -42,7 +42,7 @@ var BRAND_FIGURES = true;
     'N-watasu': '人に わたす',
     'PROMISE-LINK': '器の約束',
     'DEMO': 'この入口の応答は 録画用に記録した物です',
-    'DEMO-PLACEHOLDER': 'この入口の応答は 仮の物です（Claude を 呼んでいません。どの入力にも 同じ字が 返ります）',
+    'DEMO-PLACEHOLDER': 'この入口の応答は 用意した 物です（Claude を 呼んでいません）',
     'UNCONF': '設定が ありません。',
     'W-40': 'きょうの気分',
     'W-41': 'きょうは、どんな気分？',
@@ -130,7 +130,7 @@ var BRAND_FIGURES = true;
     'W-247': 'えらんだ かずの といに なりました。',
     'W-248': '問いの 向き: 〔題〕',
     'W-250': 'きょうの こと（〔M〕月〔D〕日）',
-    'W-251': '書いた ことは、あなたの 器に のこります。聞き役には、「聞き役に 伝える」を 入れた 日だけ 送られます。',
+    'W-251': 'きょうの ことは、あなたの 器に のこります。聞き役の Claude には 送られません。',
     'W-252': 'ゆうべ ねた 時刻',
     'W-253': 'おきた 時刻',
     'W-254': 'あさごはん',
@@ -142,10 +142,26 @@ var BRAND_FIGURES = true;
     'W-260': 'きょうの ことは 空です。何も 添えません。',
     'W-261': 'ひかえられませんでした。もういちど ためせます。',
     'W-262': '時刻が 読めません。',
-    'W-263': 'きょうの ことは、「聞き役に 伝える」を 入れた 日だけ、書いた字と いっしょに 聞き役の Claude に 送られます。',
+    'W-263': 'きょうの こと（ねた・おきた 時刻・あさごはん）と 60 問の こたえは、あなたの 器に のこります。聞き役の Claude には 送られません。',
     'W-264': 'きょうの こと（ゆうべ ねた 時刻・おきた 時刻・あさごはん）も、書き出しに 入ります。',
     'W-265': '問いの 向きを えらぶ',
-    'W-266': '背景を 白に する'
+    'W-266': '背景を 白に する',
+    'W-267': 'ここに 出る 字は あらかじめ 用意した 物です（Claude は 呼んでいません）。本番の形では Claude の API に つないで 返します。',
+    'W-268': 'きょうの 気分を きかせて くれるかな？',
+    'W-269': 'ゆうべ ねた 時刻と、おきた 時刻は？ あさごはんは 食べた？（空の ままでも だいじょうぶ）',
+    'W-270': 'つぎへ',
+    'W-271': 'この 1 週間の ことを 聞くよ。いくつ 答える？',
+    'W-272': 'ここまで。答えは あなたの 器に のこしたよ。',
+    'W-273': 'とちゅうで やめたよ。答えた 分は 器に のこしたよ。',
+    'W-274': 'ここで やめたよ。',
+    'W-275': 'やめる',
+    'W-276': '答えを のこせませんでした。もういちど ためせます。',
+    'W-277': '〔n〕 ／ 〔N〕',
+    'W-278': 'これからの こと',
+    'W-279': '本番では、聞き役を Claude（Sonnet）の API に つなぐ ことを 考えています。いまの ことばの 力や 読む 力に 合わせて、少しずつ 変わって いく 形です。今の Claude なら、それも いらない かも しれません。',
+    'W-280': 'ここで えらぶ ものは まだ ありません。はなす ことは、「今はなしたいこと」の やりとりの 欄から できます。',
+    'W-281': 'ねた 〔B〕 ／ おきた 〔W〕 ／ あさごはん 〔F〕',
+    'W-282': '答えは あなたの 器に のこります。だれにも 送りません。よい・わるいは つけません。'
   };
 
   /* 文言表に無い字（仮置き） */
@@ -165,7 +181,7 @@ var BRAND_FIGURES = true;
     contOrStop: 'つづけますか。 ここで 止めますか。',
     yourText: 'あなたの文',
     marks: [['残った', '残った'], ['一部', '一部'], ['残らなかった', '残らなかった'], ['なし', '印を つけない']],
-    markDone: function (mark, cond) { return mark === 'なし' ? '印を のこしました（印なし・' + cond + '）。' : '印を のこしました（' + mark + '・' + cond + '）。'; },
+    markDone: function (mark) { return mark === 'なし' ? '印を のこしました（印なし）。' : '印を のこしました（' + mark + '）。'; },   /* 書き方の 条件は 画面に 出さない（器には 回ごとに 残る） */
     markFail: '印を のこせませんでした。もういちど ためせます。',
     keepAsk: 'この やりとりを のこしますか。',
     keepNo: 'のこさない',
@@ -182,9 +198,6 @@ var BRAND_FIGURES = true;
     arrangeBtn: 'Claude に 並べて もらう',
     morningAsk: 'おはよう。今日の気分はどう？',
     stAdopt: '添える',
-    conditionsTitle: '書き方の条件',
-    countsTitle: '条件ごとの 回数',
-    countsNote: '数は、あったことの 数です。あなたに 数は つきません。',
     noPhoto: '写真なしで 控える',
     colMarks: ['残った', '一部', '残らなかった'],
     chooseFile: '写真を えらぶ・撮る',
@@ -514,7 +527,7 @@ var BRAND_FIGURES = true;
       recNames: {},
       hand: { stmtId: null, sel: {} },
       laws: {},
-      mood: { open: false, dir: null, limit: null },
+      kibun: newKibun(),
       practice: null,
       morning: false,   /* 朝のあいさつを 今回の入室で 出すか（画面の中だけ。端末には 日付だけ） */
       runSeq: 0,
@@ -523,6 +536,10 @@ var BRAND_FIGURES = true;
   }
   function newDaily() {
     return { date: null, bed: '', wake: '', bf: null, shareDate: null, seq: 0 };
+  }
+  /* きょうの 気分（60 問）の 進み。画面の 中だけ（端末には 覚えない）。step: daily → pick → run → done */
+  function newKibun() {
+    return { step: 'daily', count: null, date: null, startId: null, order: [], pos: 0, answers: [], runId: null, items: {}, choices: {}, q: Promise.resolve(), failed: false };
   }
   function newStmt() {
     return { id: null, sections: { trouble: '', wish: '', grounds: [], statutes: [] }, hidden: {}, draft: null, text: '', finalized_at: null, dropped: false };
@@ -903,6 +920,7 @@ var BRAND_FIGURES = true;
     openRail('renshu');
   }
 
+  /* ホームの「きょうの気分」の 絵の 釦。押すと 右の「今はなしたいこと」の チャットが 開く（気分の 面は 無い。問いは チャットの 中で 出す）。 */
   function buildMood() {
     var c = card(null);
     var scene = el('button', 'scene-btn');
@@ -910,162 +928,8 @@ var BRAND_FIGURES = true;
     var scenePic = el('span', 'scene-pic'); scenePic.setAttribute('aria-hidden', 'true');
     scene.appendChild(scenePic);
     scene.appendChild(el('span', 'scene-lbl', W['W-40']));
-    scene.setAttribute('aria-expanded', S.mood.open ? 'true' : 'false');
+    scene.addEventListener('click', function () { openRail('renshu'); });
     c.appendChild(scene);
-    var face = el('div', 'mood');
-    face.hidden = !S.mood.open;
-    scene.addEventListener('click', function () {
-      S.mood.open = !S.mood.open; face.hidden = !S.mood.open;
-      scene.setAttribute('aria-expanded', S.mood.open ? 'true' : 'false');
-      if (S.mood.open) { loadDaily(); }
-    });
-    add(face, el('h3', null, W['W-41']), el('p', 'tiny', W['W-42']));
-
-    /* (a) 問いの向き */
-    var secA = el('div', 'mood-sec');
-    add(secA, el('h4', 'mood-h', W['W-173']), el('p', 'tiny', W['W-174']));
-    secA.appendChild(linkbtn(W['W-43'], function () { S.mood.dir = null; S.mood.limit = null; paintMood(); }, 'body-size'));
-    var cards = el('div', 'dir-cards');
-    cards.setAttribute('role', 'group'); cards.setAttribute('aria-label', W['W-265']);
-    var cardEls = [];
-    DIRS.forEach(function (d) {
-      var b = el('button', 'dir-card'); b.type = 'button';
-      var pic = null;
-      if (d.key === 'ippo') { pic = board('04', 'seat-empty', 'board-scene'); }
-      else if (d.key === 'kotoba') { pic = board('03', 'seat-empty', 'board-scene'); }
-      else if (d.key === 'wakaranai') { pic = board('02', 'empty', 'board-scene'); }
-      else { pic = board('02', 'filled', 'board-120'); }
-      if (pic) {
-        var frame = el('div', 'dir-pic' + (d.key === 'oboeru' ? ' dir-pic-tile' : ''));
-        frame.appendChild(pic);
-        b.appendChild(frame);
-      }
-      var txt = el('div', 'dir-txt');
-      add(txt, el('div', 'nm', W[d.title]), el('div', 'ds', W[d.desc]));
-      b.appendChild(txt);
-      b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.mood.dir = (S.mood.dir === d.key) ? null : d.key; paintMood(); });
-      cards.appendChild(b); cardEls.push([d.key, b]);
-    });
-    secA.appendChild(cards);
-    secA.appendChild(linkbtn(W['W-46'], openPromise, 'body-size'));
-    face.appendChild(secA);
-
-    /* (b) といの かず */
-    var secB = el('div', 'mood-sec');
-    secB.appendChild(el('h4', 'mood-h', W['W-244']));
-    var limRow = el('div', 'chips');
-    limRow.setAttribute('role', 'group'); limRow.setAttribute('aria-label', W['W-244']);
-    var limBtns = [];
-    W['W-245'].split(' ／ ').forEach(function (t) {
-      var n = parseInt(t, 10);
-      var b = el('button', 'chip-btn', t); b.type = 'button';
-      b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.mood.limit = (S.mood.limit === n) ? null : n; paintMood(); });
-      limRow.appendChild(b); limBtns.push([n, b]);
-    });
-    secB.appendChild(limRow);
-    secB.appendChild(el('p', 'tiny', W['W-246']));
-    face.appendChild(secB);
-
-    /* (c) きょうの こと */
-    var secC = el('div', 'mood-sec');
-    var dh = el('h4', 'mood-h', '');
-    add(secC, dh, el('p', 'tiny', W['W-251']));
-    var fields = el('div', 'daily-fields');
-    var bedIn = el('input', 'daily-time'); bedIn.type = 'time'; bedIn.step = '60';
-    var wakeIn = el('input', 'daily-time'); wakeIn.type = 'time'; wakeIn.step = '60';
-    var bedWrap = el('label', 'daily-f'); add(bedWrap, el('span', 'field-label', W['W-252']), bedIn);
-    var wakeWrap = el('label', 'daily-f'); add(wakeWrap, el('span', 'field-label', W['W-253']), wakeIn);
-    var bfWrap = el('div', 'daily-f'); bfWrap.setAttribute('role', 'group'); bfWrap.setAttribute('aria-label', W['W-254']);
-    bfWrap.appendChild(el('span', 'field-label', W['W-254']));
-    var bfRow = el('div', 'chips');
-    var bfBtns = [];
-    var bfNames = W['W-255'].split(' ／ ');
-    ['yes', 'no'].forEach(function (v, i) {
-      var b = el('button', 'chip-btn', bfNames[i]); b.type = 'button';
-      b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.daily.bf = (S.daily.bf === v) ? null : v; paintDaily(); saveDaily(); });
-      bfRow.appendChild(b); bfBtns.push([v, b]);
-    });
-    bfWrap.appendChild(bfRow);
-    add(fields, bedWrap, wakeWrap, bfWrap);
-    secC.appendChild(fields);
-    secC.appendChild(linkbtn(W['W-256'], function () {
-      S.daily.bed = ''; S.daily.wake = ''; S.daily.bf = null; paintDaily(); saveDaily();
-    }, 'body-size'));
-    var shareRow = el('label', 'daily-share');
-    var sw = el('span', 'switch');
-    var shareIn = el('input'); shareIn.type = 'checkbox';
-    add(sw, shareIn, el('span', 'slot'));
-    add(shareRow, sw, el('span', null, W['W-257']));
-    secC.appendChild(shareRow);
-    secC.appendChild(el('p', 'tiny', W['W-258']));
-    var dstatus = el('div', 'status daily-status'); dstatus.setAttribute('role', 'status');
-    secC.appendChild(dstatus);
-    face.appendChild(secC);
-
-    /* (d) 下の行 */
-    var row = el('div', 'mood-row');
-    var go = btn(W['W-47'], 'btn-main', function () { startRun(S.mood.dir, S.mood.limit); });
-    var no = btn(W['W-49'], 'btn-second', function () { S.mood.open = false; face.hidden = true; scene.setAttribute('aria-expanded', 'false'); });
-    add(row, go, no);
-    face.appendChild(row);
-    c.appendChild(face);
-
-    var statusTimer = null;
-    function setStatus(text, isErr) {
-      if (statusTimer) { clearTimeout(statusTimer); statusTimer = null; }
-      dstatus.textContent = text || '';
-      dstatus.className = 'status daily-status' + (isErr ? ' err' : '');
-      if (text && !isErr) { statusTimer = later(function () { dstatus.textContent = ''; }, 4000); }
-    }
-    function paintMood() {
-      cardEls.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.dir === p[0] ? 'true' : 'false'); });
-      limBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.limit === p[0] ? 'true' : 'false'); });
-    }
-    function paintDaily() {
-      var d = S.daily.date || todayJst();
-      dh.textContent = W['W-250'].replace('〔M〕', String(parseInt(d.slice(5, 7), 10))).replace('〔D〕', String(parseInt(d.slice(8, 10), 10)));
-      bedIn.value = S.daily.bed || ''; wakeIn.value = S.daily.wake || '';
-      bfBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.daily.bf === p[0] ? 'true' : 'false'); });
-      shareIn.checked = shareActive();
-      paintShare();
-    }
-    async function loadDaily() {
-      var d = todayJst();
-      if (S.daily.date === d) { paintDaily(); return; }
-      S.daily.date = null; S.daily.bed = ''; S.daily.wake = ''; S.daily.bf = null;
-      paintDaily();
-      try {
-        var r = await api('GET', '/api/daily/' + d);
-        if (!S.loggedIn) { return; }
-        S.daily.date = d; S.daily.bed = (r && r.bed_time) || ''; S.daily.wake = (r && r.wake_time) || ''; S.daily.bf = (r && r.breakfast) || null;
-        paintDaily();
-      } catch (e) { if (S.loggedIn) { setStatus(W['W-85'], true); } }
-    }
-    async function saveDaily() {
-      S.daily.seq += 1;
-      var mine = S.daily.seq;
-      if (S.daily.date && S.daily.date !== todayJst()) {   /* 面を開いたまま日付が替わった＝前の日の値を次の日に書かない。読み直す */
-        S.daily = newDaily(); loadDaily(); return;
-      }
-      if ((bedIn.validity && bedIn.validity.badInput) || (wakeIn.validity && wakeIn.validity.badInput)) { setStatus(W['W-262'], true); return; }
-      var d = todayJst();
-      var body = { bed_time: S.daily.bed || null, wake_time: S.daily.wake || null, breakfast: S.daily.bf || null };
-      try {
-        await api('PUT', '/api/daily/' + d, body);
-        if (!S.loggedIn || mine !== S.daily.seq) { return; }
-        S.daily.date = d;
-        setStatus(L.saved, false);
-        paintShare();
-      } catch (e) { if (S.loggedIn) { setStatus(W['W-261'], true); } }
-    }
-    bedIn.addEventListener('change', function () { S.daily.bed = bedIn.value; saveDaily(); });
-    wakeIn.addEventListener('change', function () { S.daily.wake = wakeIn.value; saveDaily(); });
-    shareIn.addEventListener('change', function () { S.daily.shareDate = shareIn.checked ? todayJst() : null; paintShare(); });
-    paintMood();
-    if (S.mood.open) { loadDaily(); } else { paintDaily(); }
     return c;
   }
 
@@ -1136,65 +1000,14 @@ var BRAND_FIGURES = true;
     return L.condGroups.map(function (g) { return cond[g.key]; }).filter(Boolean).join('／');
   }
 
+  /* 「書く れんしゅう」の 画面＝条件の 札と 回数の 札は 無い。これからの ことの 説明だけ（約束の 字では ない）。 */
   function renderRenshu(host) {
     var sec = section('a');
-    var c1 = card(L.conditionsTitle);
-    L.condGroups.forEach(function (g) {
-      c1.appendChild(el('div', 'field-label', g.label));
-      var row = el('div', 'chips');
-      g.opts.forEach(function (o) {
-        var b = el('button', 'chip-btn', o); b.type = 'button';
-        b.setAttribute('aria-pressed', S.cond[g.key] === o ? 'true' : 'false');
-        b.addEventListener('click', function () {
-          S.cond[g.key] = o;
-          Array.prototype.forEach.call(row.querySelectorAll('.chip-btn'), function (x) { x.setAttribute('aria-pressed', x.textContent === o ? 'true' : 'false'); });
-          refreshCondBar();
-        });
-        row.appendChild(b);
-      });
-      if (g.soon) { var s = el('button', 'chip-btn', g.soon); s.type = 'button'; s.disabled = true; row.appendChild(s); }
-      c1.appendChild(row);
-    });
+    var c1 = card(W['W-278']);
+    c1.appendChild(el('p', null, W['W-279']));
+    c1.appendChild(el('p', 'tiny', W['W-280']));
     sec.appendChild(c1);
-    var c2 = card(L.countsTitle);
-    var box = el('div'); box.id = 'summary-box'; c2.appendChild(box);
-    c2.appendChild(line(L.countsNote, 'tiny'));
-    sec.appendChild(c2);
     host.appendChild(sec);
-    loadSummary(box);
-  }
-
-  function parseKey(key) {
-    var map = {};
-    String(key).split('|').forEach(function (p) { var i = p.indexOf('='); if (i > 0) { map[p.slice(0, i)] = p.slice(i + 1); } });
-    return map;
-  }
-
-  async function loadSummary(box) {
-    clear(box); box.appendChild(el('p', 'loading', 'よみこみ中…'));
-    var data;
-    try { data = await api('GET', '/api/practice/summary'); }
-    catch (e) { if (S.loggedIn && document.body.contains(box)) { clear(box); box.appendChild(el('div', 'err', W['W-85'])); } return; }
-    if (!S.loggedIn || !document.body.contains(box)) { return; }
-    clear(box);
-    var src = (data && data.summary) ? data.summary : (data || {});
-    var keys = Object.keys(src);
-    if (!keys.length) { box.appendChild(emptyWithFigure('mana', 'fig-72', W['W-83'])); return; }
-    var wrap = el('div', 'tablewrap'); var tb = el('table', 'counts');
-    var thead = el('thead'); var hr = el('tr');
-    hr.appendChild(el('th', null, '使った条件'));
-    L.colMarks.forEach(function (m) { hr.appendChild(el('th', null, m)); });
-    thead.appendChild(hr); tb.appendChild(thead);
-    var tbody = el('tbody');
-    keys.forEach(function (k) {
-      var map = parseKey(k);
-      var parts = L.condGroups.map(function (g) { return map[g.key] ? L.condShort[g.key] + ' ' + map[g.key] : ''; }).filter(Boolean);
-      var tr = el('tr');
-      var td = el('td'); td.appendChild(bdi(parts.join('・') || k)); tr.appendChild(td);
-      L.colMarks.forEach(function (m) { tr.appendChild(el('td', 'n', String((src[k] && src[k][m]) || 0))); });
-      tbody.appendChild(tr);
-    });
-    tb.appendChild(tbody); wrap.appendChild(tb); box.appendChild(wrap);
   }
 
   /* ================================================================
@@ -1478,6 +1291,7 @@ var BRAND_FIGURES = true;
     wrap.appendChild(tag((d.derived_meta && d.derived_meta.label) || DERIVED_LABEL, 'derived'));
     wrap.appendChild(el('div', 'note calm', W['W-70']));
     wrap.lastChild.style.marginTop = '8px';
+    if (S.status && S.status.demo_mode) { wrap.appendChild(el('div', 'tiny msg-demo', W['W-267'])); }
     var md = d.derived_markdown || '';
     var secs = [], cur = { title: null, lines: [] };
     md.split('\n').forEach(function (ln) {
@@ -1970,6 +1784,7 @@ var BRAND_FIGURES = true;
     head.firstChild.textContent = '';
     head.firstChild.appendChild(tag(L.stDraftTag, 'draft'));
     c.appendChild(head);
+    if (S.status && S.status.demo_mode) { c.appendChild(el('div', 'tiny msg-demo', W['W-267'])); }
     var dt = el('div', 'longbox'); dt.textContent = draftText();
     c.appendChild(dt);
     var ids = d.statute_ids || [];
@@ -2274,18 +2089,6 @@ var BRAND_FIGURES = true;
   /* ================================================================
      右の帯（6）
      ================================================================ */
-  function refreshCondBar() {
-    var bar = $('condbar');
-    if (!bar) { return; }
-    clear(bar);
-    L.condGroups.forEach(function (g) {
-      var b = el('button', 'chip-btn', S.cond[g.key]); b.type = 'button';
-      b.title = g.label; b.setAttribute('aria-label', g.label + ' ' + S.cond[g.key]);
-      b.addEventListener('click', function () { goView('renshu'); });
-      bar.appendChild(b);
-    });
-  }
-
   /* 見える人の一文と 2 つのリンク。段の中と、チャットだけ表示の注釈の中の 2 か所に置く（CSS で片方だけ出す）。 */
   function visLine() {
     var vis = el('div', 'visline');
@@ -2307,7 +2110,6 @@ var BRAND_FIGURES = true;
     mid.appendChild(visLine());
     var vis2 = $('rail-vis'); if (vis2) { clear(vis2); vis2.appendChild(visLine()); if (name === 'renshu') { vis2.appendChild(el('p', 'tier-note-s', W['W-138'])); } }
     if (name === 'kako') { mid.appendChild(el('div', 'note calm tier-note', noteKako)); }
-    if (name === 'renshu') { var bar = el('div', 'condbar'); bar.id = 'condbar'; mid.appendChild(bar); }
     var log = el('div', 'tier-log'); log.id = 'tier-log'; log.setAttribute('role', 'log');
     mid.appendChild(log);
     t.appendChild(mid);
@@ -2343,7 +2145,7 @@ var BRAND_FIGURES = true;
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.altKey) { ev.preventDefault(); sendTier(name); } });
     ta.addEventListener('input', function () { S.drafts[name] = ta.value; });
     paintLog(name);
-    if (name === 'renshu') { refreshCondBar(); paintShare(); syncReached(); }
+    if (name === 'renshu') { paintShare(); syncReached(); }
   }
 
   /* といの かずに 達した後は、送る欄と送信の釦を 隠して、同じ場所に「はじめる」を置く。 */
@@ -2354,27 +2156,73 @@ var BRAND_FIGURES = true;
     ta.hidden = done; send.hidden = done; again.hidden = !done;
   }
 
-  /* 今はなしたいこと の やりとりが 空で、まだ 回を 始めていないとき、欄の 頭に 出す 選択肢（問いの向き・といの かず・はじめる）。
-     ホームの「きょうの気分」と 同じ入れ物（S.mood）に 選びを 持つ。絵は 置かない。 */
-  function startPick() {
-    var box = el('div', 'start-pick');
-    var secA = el('div', 'pick-sec');
-    var headA = el('div', 'pick-head');
-    add(headA, el('h4', 'mood-h', W['W-173']), linkbtn(W['W-43'], function () { S.mood.dir = null; S.mood.limit = null; paint(); }, 'body-size'));
-    add(secA, headA, el('p', 'tiny', W['W-174']));
-    var dirRow = el('div', 'chips pick-dirs');
-    dirRow.setAttribute('role', 'group'); dirRow.setAttribute('aria-label', W['W-265']);
-    var dirBtns = [];
-    DIRS.forEach(function (d) {
-      var b = el('button', 'chip-btn', W[d.title]); b.type = 'button';
-      b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.mood.dir = (S.mood.dir === d.key) ? null : d.key; paint(); });
-      dirRow.appendChild(b); dirBtns.push([d.key, b]);
-    });
-    secA.appendChild(dirRow);
-    var secB = el('div', 'pick-sec');
-    var headB = el('div', 'pick-head');
-    headB.appendChild(el('h4', 'mood-h', W['W-244']));
+  /* 今はなしたいこと の 欄の 頭に 出す「きょうの 気分」の 入口（Claude は 使わない。器の 字と 選択肢だけ）。
+     step daily: 器の 問い（W-268・W-269）＋ 寝た 時刻・起きた 時刻・あさごはん の 欄 ＋「つぎへ」→ きょうの こと（/api/daily）に 保存
+     step pick : 器の 問い（W-271）＋ 数の 札（W-245）＋「はじめる」（W-47）／「今日はしない」（W-49） */
+  function kibunIntro() {
+    var k = S.kibun;
+    var box = el('div', 'start-pick kibun-intro');
+    if (k.step === 'daily') {
+      /* 朝の あいさつ（L.morningAsk）が 欄の 頭に 出ている ときは、気分を 聞く 一文（W-268）を 省く（同じ 問いを 続けて 2 つ 出さない） */
+      box.appendChild(msgNode({ who: 'sys', text: (S.morning ? '' : W['W-268'] + '\n') + W['W-269'] }));
+      var fields = el('div', 'daily-fields pick-head');
+      var bedIn = el('input', 'daily-time'); bedIn.type = 'time'; bedIn.step = '60';
+      var wakeIn = el('input', 'daily-time'); wakeIn.type = 'time'; wakeIn.step = '60';
+      bedIn.addEventListener('input', function () { S.daily.bed = bedIn.value; });
+      wakeIn.addEventListener('input', function () { S.daily.wake = wakeIn.value; });
+      var bedWrap = el('label', 'daily-f'); add(bedWrap, el('span', 'field-label', W['W-252']), bedIn);
+      var wakeWrap = el('label', 'daily-f'); add(wakeWrap, el('span', 'field-label', W['W-253']), wakeIn);
+      var bfWrap = el('div', 'daily-f'); bfWrap.setAttribute('role', 'group'); bfWrap.setAttribute('aria-label', W['W-254']);
+      bfWrap.appendChild(el('span', 'field-label', W['W-254']));
+      var bfRow = el('div', 'chips pick-nums');
+      var bfBtns = [];
+      var bfNames = W['W-255'].split(' ／ ');
+      ['yes', 'no'].forEach(function (v, i) {
+        var b = el('button', 'chip-btn', bfNames[i]); b.type = 'button';
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', function () { S.daily.bf = (S.daily.bf === v) ? null : v; paintBf(); });
+        bfRow.appendChild(b); bfBtns.push([v, b]);
+      });
+      bfWrap.appendChild(bfRow);
+      add(fields, bedWrap, wakeWrap, bfWrap);
+      box.appendChild(fields);
+      var row = el('div', 'pick-row');
+      var status = el('div', 'status daily-status'); status.setAttribute('role', 'status');
+      var next = btn(W['W-270'], 'btn-main', async function () {
+        if ((bedIn.validity && bedIn.validity.badInput) || (wakeIn.validity && wakeIn.validity.badInput)) { status.textContent = W['W-262']; return; }
+        S.daily.bed = bedIn.value; S.daily.wake = wakeIn.value;
+        var d = todayJst();
+        if (!dailyEmpty()) {
+          next.disabled = true;
+          try {
+            await api('PUT', '/api/daily/' + d, { bed_time: S.daily.bed || null, wake_time: S.daily.wake || null, breakfast: S.daily.bf || null });
+          } catch (e) { if (S.loggedIn) { next.disabled = false; status.textContent = W['W-261']; } return; }
+          if (!S.loggedIn) { return; }
+          S.daily.date = d;
+          S.chat.renshu.push({ who: 'me', at: new Date().toISOString(), text: W['W-281'].replace('〔B〕', S.daily.bed || '—').replace('〔W〕', S.daily.wake || '—').replace('〔F〕', S.daily.bf ? bfNames[S.daily.bf === 'yes' ? 0 : 1] : '—') });
+        }
+        k.step = 'pick';
+        paintLog('renshu');
+      });
+      add(row, next, status);
+      box.appendChild(row);
+      function paintBf() { bfBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.daily.bf === p[0] ? 'true' : 'false'); }); }
+      function fill() { bedIn.value = S.daily.bed || ''; wakeIn.value = S.daily.wake || ''; paintBf(); }
+      fill();
+      if (S.daily.date !== todayJst()) {
+        api('GET', '/api/daily/' + todayJst()).then(function (r) {
+          if (!S.loggedIn || k.step !== 'daily') { return; }
+          S.daily.date = todayJst();   /* 器に 在る きょうの 分で、まだ 空の 欄だけ 埋める（本人が 先に 入れた 値は 上書きしない） */
+          if (!bedIn.value && r && r.bed_time) { S.daily.bed = r.bed_time; }
+          if (!wakeIn.value && r && r.wake_time) { S.daily.wake = r.wake_time; }
+          if (!S.daily.bf && r && r.breakfast) { S.daily.bf = r.breakfast; }
+          fill();
+        }).catch(function () { /* 読めなければ 空の まま */ });
+      }
+      return box;
+    }
+    box.appendChild(msgNode({ who: 'sys', text: W['W-271'] }));
+    var head = el('div', 'pick-head');
     var limRow = el('div', 'chips pick-nums');
     limRow.setAttribute('role', 'group'); limRow.setAttribute('aria-label', W['W-244']);
     var limBtns = [];
@@ -2382,20 +2230,79 @@ var BRAND_FIGURES = true;
       var n = parseInt(t, 10);
       var b = el('button', 'chip-btn', t); b.type = 'button';
       b.setAttribute('aria-pressed', 'false');
-      b.addEventListener('click', function () { S.mood.limit = (S.mood.limit === n) ? null : n; paint(); });
+      b.addEventListener('click', function () { k.count = (k.count === n) ? null : n; paint(); });
       limRow.appendChild(b); limBtns.push([n, b]);
     });
-    headB.appendChild(limRow);
-    add(secB, headB, el('p', 'tiny', W['W-246']));
-    var row = el('div', 'pick-row');
-    row.appendChild(btn(W['W-47'], 'btn-main', function () { startRun(S.mood.dir, S.mood.limit); }));
-    add(box, secA, secB, row);
+    head.appendChild(limRow);
+    box.appendChild(head);
+    box.appendChild(el('p', 'tiny', W['W-282']));
+    var row2 = el('div', 'pick-row');
+    var go = btn(W['W-47'], 'btn-main', function () { kibunStart(); });
+    add(row2, go, linkbtn(W['W-49'], function () { k.step = 'done'; paintLog('renshu'); }, 'body-size'));
+    box.appendChild(row2);
     function paint() {
-      dirBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.dir === p[0] ? 'true' : 'false'); });
-      limBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.limit === p[0] ? 'true' : 'false'); });
+      limBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', k.count === p[0] ? 'true' : 'false'); });
+      go.disabled = !k.count;
     }
     paint();
     return box;
+  }
+
+  /* 「はじめる」: 問いと 選択肢を 器から 読み、前回の 続き（next_id）から count 個を 順に 出す。 */
+  async function kibunStart() {
+    var k = S.kibun;
+    if (k.step !== 'pick' || !k.count) { return; }
+    var r;
+    try { r = await api('GET', '/api/kibun/items'); }
+    catch (e) { if (S.loggedIn) { pushMsg('renshu', { who: 'sys', text: W['W-85'] }); } return; }
+    if (!S.loggedIn || k.step !== 'pick') { return; }
+    var n = (r.items || []).length;
+    if (!n) { return; }
+    k.items = {}; (r.items || []).forEach(function (it) { k.items[it.id] = it; });
+    k.choices = r.choices || {};
+    k.date = todayJst();
+    k.startId = r.next_id || 1;
+    k.order = [];
+    var i = k.startId;
+    while (k.order.length < Math.min(k.count, n)) { k.order.push(i); i = (i >= n) ? 1 : i + 1; }
+    k.pos = 0; k.answers = []; k.runId = null; k.failed = false;
+    k.step = 'run';
+    kibunAsk();
+  }
+  function kibunAsk() {
+    var k = S.kibun;
+    var it = k.items[k.order[k.pos]];
+    pushMsg('renshu', { who: 'sys', text: it.text, kq: { id: it.id, type: it.type, pos: k.pos, total: k.order.length, done: false } });
+  }
+  function kibunAnswer(m, key, label) {
+    var k = S.kibun;
+    if (k.step !== 'run' || m.kq.done) { return; }
+    m.kq.done = true; m.kq.choice = key;
+    k.answers.push({ id: m.kq.id, choice: key });
+    S.chat.renshu.push({ who: 'me', at: new Date().toISOString(), text: label });
+    k.pos += 1;
+    if (k.pos < k.order.length) { kibunSave(false); kibunAsk(); return; }
+    k.step = 'done';
+    kibunSave(true);
+    pushMsg('renshu', { who: 'sys', text: W['W-272'] });
+  }
+  function kibunStop(m) {
+    var k = S.kibun;
+    if (k.step !== 'run') { return; }
+    if (m && m.kq) { m.kq.done = true; }
+    k.step = 'done';
+    if (k.answers.length) { kibunSave(true); pushMsg('renshu', { who: 'sys', text: W['W-273'] }); }
+    else { pushMsg('renshu', { who: 'sys', text: W['W-274'] }); }
+  }
+  /* 答えを 器に のこす（回を 1 つ、答えるたびに 置き換える）。順に 送る（run_id が 決まる 前に 次を 送らない）。 */
+  function kibunSave(finished) {
+    var k = S.kibun;
+    k.q = k.q.then(function () {
+      var body = { date: k.date, run_id: k.runId, count: k.count, start_id: k.startId, version: 'c', answers: k.answers.slice(), finished: finished };
+      return api('POST', '/api/kibun/runs', body).then(function (r) { if (r && r.run_id) { k.runId = r.run_id; } });
+    }).catch(function () {
+      if (S.loggedIn && !k.failed) { k.failed = true; pushMsg('renshu', { who: 'sys', text: W['W-276'] }); }
+    });
   }
 
   function paintLog(name) {
@@ -2405,12 +2312,14 @@ var BRAND_FIGURES = true;
     var morning = (name === 'renshu' && S.morning);
     if (morning) { log.appendChild(msgNode({ who: 'sys', text: L.morningAsk })); }
     var msgs = S.chat[name];
+    var intro = (name === 'renshu' && (S.kibun.step === 'daily' || S.kibun.step === 'pick'));
     if (!msgs.length) {
-      if (name === 'renshu' && !S.practice) { log.appendChild(startPick()); return; }
+      if (intro) { log.appendChild(kibunIntro()); return; }
       if (!morning) { log.appendChild(el('div', 'empty-s', W['W-139'])); }
       return;
     }
     msgs.forEach(function (m) { log.appendChild(msgNode(m)); });
+    if (intro) { log.appendChild(kibunIntro()); }
     scrollLogBottom();
   }
 
@@ -2422,13 +2331,16 @@ var BRAND_FIGURES = true;
       return n;
     }
     if (m.who === 'sys') {
+      if (m.kq) { n.className += ' kq'; n.appendChild(el('div', 'msg-head', W['W-277'].replace('〔n〕', String(m.kq.pos + 1)).replace('〔N〕', String(m.kq.total)))); }
       n.appendChild(document.createTextNode(m.text));
       if (m.keep) { n.appendChild(keepRow(m)); }
+      if (m.kq && !m.kq.done) { n.appendChild(kibunRow(m)); }
       return n;
     }
     var head = el('div', 'msg-head');
     head.appendChild(bdi(W['W-141'])); head.appendChild(document.createTextNode('　' + fmtTime(m.at)));
     n.appendChild(head);
+    if (S.status && S.status.demo_mode) { n.appendChild(el('div', 'msg-foot msg-demo', W['W-267'])); }
     if (m.readback !== undefined && m.readback !== null) {
       var rb = el('div', 'readback');
       rb.appendChild(el('span', 'tag tag-person readback-tag', L.yourText));
@@ -2452,6 +2364,15 @@ var BRAND_FIGURES = true;
     n.appendChild(foot);
     return n;
   }
+  /* 器の 問いの 下の 選択肢（型ごと）と「やめる」。押した 字は 本人の 吹き出しに なる。 */
+  function kibunRow(m) {
+    var row = el('div', 'markrow kibun-row');
+    (S.kibun.choices[m.kq.type] || []).forEach(function (c) {
+      row.appendChild(btn(c.label, 'btn-second sendbtn', function () { disableRow(row); kibunAnswer(m, c.key, c.label); }));
+    });
+    row.appendChild(linkbtn(W['W-275'], function () { kibunStop(m); }, 'body-size'));
+    return row;
+  }
   function disableRow(row) { Array.prototype.forEach.call(row.querySelectorAll('button'), function (b) { b.disabled = true; }); }
 
   function pushMsg(tier, m) {
@@ -2467,11 +2388,8 @@ var BRAND_FIGURES = true;
         try {
           await api('POST', '/api/practice/marks', { turn_id: m.turnId, mark: p[0] });
           m.ask = 'done';
-          S.chat.renshu.push({ who: 'sys', text: L.markDone(p[0], m.condText || condText(S.cond)) });
+          S.chat.renshu.push({ who: 'sys', text: L.markDone(p[0]) });
           S.chat.renshu.push({ who: 'sys', text: L.keepAsk, keep: true });
-          /* 本文の「条件ごとの 回数」を読み直す（印を押したら回数が 1 増えるのが見える） */
-          var sb = document.getElementById('summary-box');
-          if (sb && S.view === 'renshu') { loadSummary(sb); }
         } catch (e) {
           if (S.loggedIn) { S.chat.renshu.push({ who: 'sys', text: L.markFail }); }
         }
