@@ -8,6 +8,43 @@ The Japanese original is at [`../ja/`](../ja/).
 
 ---
 
+## Premise — the ground this document stands on
+
+Everything written below stands **on a particular ground.**
+
+**The rule of law, science, liberty, democracy, capitalism.**
+The benefits being received right now — including the large language model this
+tool calls — **rest on that agreed foundation.**
+
+The foundation was not given by nature. **It was constructed, and agreed to.**
+Which also means **it can break.**
+
+### Each position does not negate that foundation
+
+The position that there should be a ceiling on wealth, and the position that the
+state's involvement should be minimal, **are not standing against this foundation.**
+**Both hold as arguments because this foundation exists.**
+
+So this document:
+
+- **adopts none of those positions.** This tool is not an instrument for settling that argument.
+- **treats none of them as an enemy of the foundation.**
+
+From the next section onward, three ways of reading how the foundation gives way
+are set out. That is not a question of **which position is right.** It is a
+question of **whether the ground under your feet is still holding — whichever
+position you take.**
+
+### And this is a premise about Japan, now
+
+What is written here rests on **premises that hold in present-day Japan.**
+The shape of the law, the shape of the benefits, the scope of what has been agreed
+— these differ by country and by era.
+
+**It is not written as something universal.** Please read it that way.
+
+---
+
 ## 1. What this tool can promise
 
 The limits first.
