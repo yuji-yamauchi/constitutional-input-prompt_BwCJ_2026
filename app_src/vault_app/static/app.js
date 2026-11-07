@@ -84,17 +84,18 @@ var BRAND_FIGURES = true;
     'W-107': 'まだ ありません。',
     'W-108': 'この行をけす',
     'W-120': '聞き役との やりとり',
-    'W-121': '下の えらぶところで、書く れんしゅう・いまの のぞみの まとめ・過去のことを 話す場 を きりかえます。見えるのは、あなただけです。',
+    'W-121': '下の えらぶところで、明日からのこと・今はなしたいこと・思い出した思い出のこと を きりかえます。見えるのは、あなただけです。',
     'W-122': '見る やりとりを えらぶ',
-    'W-123a': '書く れんしゅう',
-    'W-123b': 'いまの のぞみを まとめる',
-    'W-123c': '過去のことを 話す場',
+    'W-123a': '今はなしたいこと',
+    'W-123b': '明日からのこと',
+    'W-123c': '思い出した思い出のこと',
     'W-124': 'チャットの枠を とじる・ひらく',
-    'W-125': { renshu: '書く れんしゅう', seiri: 'いまの のぞみを まとめる', kako: '過去のことを 話す場' },
+    'W-125': { renshu: '今はなしたいこと', mirai: '明日からのこと', kako: '思い出した思い出のこと' },
     'W-126': 'このやりとりが見える人: あなただけ。',
     'W-130': 'ここに 書きます（Alt+Enterで送信）',
     'W-131a': 'チャットだけ表示しています',
     'W-131b': '本文を出す',
+    'W-131c': '注釈',
     'W-132': 'ドラッグで幅をかえる',
     'W-133': '…かんがえています',
     'W-134': '送信',
@@ -143,7 +144,8 @@ var BRAND_FIGURES = true;
     'W-262': '時刻が 読めません。',
     'W-263': 'きょうの ことは、「聞き役に 伝える」を 入れた 日だけ、書いた字と いっしょに 聞き役の Claude に 送られます。',
     'W-264': 'きょうの こと（ゆうべ ねた 時刻・おきた 時刻・あさごはん）も、書き出しに 入ります。',
-    'W-265': '問いの 向きを えらぶ'
+    'W-265': '問いの 向きを えらぶ',
+    'W-266': '背景を 白に する'
   };
 
   /* 文言表に無い字（仮置き） */
@@ -173,10 +175,12 @@ var BRAND_FIGURES = true;
     kakoLocal: 'ここに 書いた字は、Claude には 送られません。この画面の中だけに あります。',
     kakoEnd: 'おわる',
     kakoAsk: 'いまの 話を、あなたの記録に のこしますか？',
-    seiriState: '書いた字は「困っていること」の 欄に 足されます。Claude へは 送られません。',
-    seiriAdded: '「困っていること」の 欄に 足しました。',
-    seiriGo: 'まとめの 画面へ',
+    miraiState: '書いた字は「のぞむこと」の 欄に 足されます。Claude へは 送られません。',
+    miraiAdded: '「のぞむこと」の 欄に 足しました。',
+    miraiGo: 'まとめの 画面へ',
+    miraiLocal: 'ここに 書いた字は、Claude には 送られません。意思表出文の「のぞむこと」の 欄に 足されます。',
     arrangeBtn: 'Claude に 並べて もらう',
+    morningAsk: 'おはよう。今日の気分はどう？',
     stAdopt: '添える',
     conditionsTitle: '書き方の条件',
     countsTitle: '条件ごとの 回数',
@@ -425,6 +429,21 @@ var BRAND_FIGURES = true;
   function fmtTime(iso) { var p = jstParts(iso); return p ? p.mo + '-' + p.d + ' ' + p.h + ':' + p.mi + (p.utc ? '（世界標準時）' : '') : ''; }
   function fmtDT(iso) { var p = jstParts(iso); return p ? p.y + '-' + p.mo + '-' + p.d + ' ' + p.h + ':' + p.mi + (p.utc ? '（世界標準時）' : '') : ''; }
 
+  /* 一日の始まり（日本時間の 時）。設定の釦は まだ無い。後で 設定にするときは ここ 1 か所を 読み替える。 */
+  var DAY_START_HOUR = 7;
+  var MORNING_KEY = 'cip_morning';   /* 端末に 覚えるのは 日付（YYYY-MM-DD・日本時間）だけ。本文は 覚えない */
+  /* その日（日本時間）で 初めて 器に 入り、かつ 一日の始まり 以降なら true。true を 返した日を 端末に 覚える。
+     日本時間が 作れない端末（Intl 無し）では 出さない。端末に 覚えられないときは 入るたびに 出す。 */
+  function morningDue() {
+    var p = jstParts(new Date().toISOString());
+    if (!p || p.utc) { return false; }
+    if (parseInt(p.h, 10) < DAY_START_HOUR) { return false; }
+    var today = p.y + '-' + p.mo + '-' + p.d;
+    if (lsGet(MORNING_KEY) === today) { return false; }
+    lsSet(MORNING_KEY, today);
+    return true;
+  }
+
   /* 最小の書式（6.4）: 太字・コード・見出しを太字に。ほかは字のまま。 */
   function inlineFmt(s, parent) {
     var re = /(\*\*[^*\n]+\*\*|`[^`\n]+`)/g;
@@ -486,8 +505,8 @@ var BRAND_FIGURES = true;
     return {
       status: null, loggedIn: false, view: 'home', rail: 'renshu',
       cond: copy(DEFAULT_COND),
-      chat: { renshu: [], seiri: [], kako: [] },
-      drafts: { renshu: '', seiri: '', kako: '' },
+      chat: { renshu: [], mirai: [], kako: [] },
+      drafts: { renshu: '', mirai: '', kako: '' },
       sending: false,
       urls: [],
       seat: false,
@@ -497,6 +516,7 @@ var BRAND_FIGURES = true;
       laws: {},
       mood: { open: false, dir: null, limit: null },
       practice: null,
+      morning: false,   /* 朝のあいさつを 今回の入室で 出すか（画面の中だけ。端末には 日付だけ） */
       runSeq: 0,
       daily: newDaily()
     };
@@ -510,6 +530,21 @@ var BRAND_FIGURES = true;
   function copy(o) { return JSON.parse(JSON.stringify(o)); }
 
   var ui = { leftMin: false, railMin: false, railW: 0, sel: 'renshu', seat: false };
+  var noteOpen = false;   /* ③ チャットだけ表示の「注釈」の開閉。端末には覚えない */
+  function setNote(open) {
+    noteOpen = !!open;
+    $('rail').classList.toggle('note-open', noteOpen);
+    $('btn-railnote').setAttribute('aria-expanded', noteOpen ? 'true' : 'false');
+  }
+  /* 第 5 弾②: やりとりの欄の 背景の絵を 消して 白にする 切替（注釈の中）。端末に 覚えるのは '1' か '0' の 1 字だけ。 */
+  var BG_KEY = 'cip_bgwhite';
+  var bgWhite = false;
+  function applyBg() {
+    document.body.classList.toggle('bg-white', bgWhite);
+    var c = $('bg-white-in'); if (c) { c.checked = bgWhite; }
+  }
+  function loadBg() { bgWhite = (lsGet(BG_KEY) === '1'); applyBg(); }
+  function setBg(on) { bgWhite = !!on; lsSet(BG_KEY, bgWhite ? '1' : '0'); applyBg(); }
   var idleTimer = null, lastPing = 0, bootBusy = false;
 
   function api(method, path, body, ms) {
@@ -575,6 +610,7 @@ var BRAND_FIGURES = true;
     clear($('main')); clear($('rail-body')); clear($('modal-root')); $('crumb').textContent = '';
     $('shell').hidden = true;
     document.body.classList.remove('chat-only');
+    setNote(false);
     var keepStatus = S.status;
     S = freshState();
     S.status = keepStatus ? { configured: keepStatus.configured, logged_in: false, claude: keepStatus.claude, demo_mode: keepStatus.demo_mode, port_paired: false } : null;
@@ -622,6 +658,7 @@ var BRAND_FIGURES = true;
     fillStatic();
     S = freshState();
     loadUi();
+    loadBg();
     var st;
     try { st = await api('GET', '/api/status'); }
     catch (e) {
@@ -662,9 +699,10 @@ var BRAND_FIGURES = true;
     $('unconf').hidden = true;
     $('shell').hidden = false;
     setState('ready');
-    ui.sel = (['renshu', 'seiri', 'kako'].indexOf(ui.sel) >= 0) ? ui.sel : 'renshu';
+    ui.sel = (['renshu', 'mirai', 'kako'].indexOf(ui.sel) >= 0) ? ui.sel : 'renshu';
     S.rail = ui.sel;
     $('rail-sel').value = S.rail;
+    S.morning = morningDue();
     initLayout();
     buildTier(S.rail);
     showView('home');
@@ -700,6 +738,7 @@ var BRAND_FIGURES = true;
   }
   function initLayout() {
     if (isSmall()) { ui.leftMin = true; ui.railMin = false; }   // スマホは A（左を畳む・右を開く）から始める
+    setNote(false);
     applyLayout();
   }
   function scrollLogBottom() { var lg = $('tier-log'); if (lg) { lg.scrollTop = lg.scrollHeight; } }
@@ -866,8 +905,11 @@ var BRAND_FIGURES = true;
 
   function buildMood() {
     var c = card(null);
-    var scene = el('button', 'scene-btn', W['W-40']);
+    var scene = el('button', 'scene-btn');
     scene.type = 'button';
+    var scenePic = el('span', 'scene-pic'); scenePic.setAttribute('aria-hidden', 'true');
+    scene.appendChild(scenePic);
+    scene.appendChild(el('span', 'scene-lbl', W['W-40']));
     scene.setAttribute('aria-expanded', S.mood.open ? 'true' : 'false');
     c.appendChild(scene);
     var face = el('div', 'mood');
@@ -2244,33 +2286,40 @@ var BRAND_FIGURES = true;
     });
   }
 
-  function buildTier(name) {
-    var body = $('rail-body');
-    clear(body);
-    var t = el('div', 'tier');
-    t.appendChild(el('div', 'tier-head', W['W-125'][name]));
-    if (name === 'renshu' && S.practice && S.practice.direction) {
-      t.appendChild(el('div', 'tier-dir', W['W-248'].replace('〔題〕', dirTitle(S.practice.direction))));
-    }
+  /* 見える人の一文と 2 つのリンク。段の中と、チャットだけ表示の注釈の中の 2 か所に置く（CSS で片方だけ出す）。 */
+  function visLine() {
     var vis = el('div', 'visline');
     vis.appendChild(el('span', null, W['W-126']));
     vis.appendChild(linkbtn(W['W-151'], openVisible));
     vis.appendChild(linkbtn(W['PROMISE-LINK'], openPromise));
-    t.appendChild(vis);
-    if (name === 'kako') { t.appendChild(el('div', 'note calm tier-note', noteKako)); }
-    if (name === 'renshu') { var bar = el('div', 'condbar'); bar.id = 'condbar'; t.appendChild(bar); }
+    return vis;
+  }
+  function buildTier(name) {
+    var body = $('rail-body');
+    clear(body);
+    var t = el('div', 'tier');
+    t.setAttribute('data-tier', name);   /* どの場か（renshu / mirai / kako）。やりとりの欄の背景の絵は CSS がこれを見る */
+    t.appendChild(el('div', 'tier-head', W['W-125'][name]));
+    var mid = el('div', 'tier-mid');   /* 段の見出しと 入力の足の あいだ＝背景の絵を 敷く 範囲 */
+    if (name === 'renshu' && S.practice && S.practice.direction) {
+      mid.appendChild(el('div', 'tier-dir', W['W-248'].replace('〔題〕', dirTitle(S.practice.direction))));
+    }
+    mid.appendChild(visLine());
+    var vis2 = $('rail-vis'); if (vis2) { clear(vis2); vis2.appendChild(visLine()); if (name === 'renshu') { vis2.appendChild(el('p', 'tier-note-s', W['W-138'])); } }
+    if (name === 'kako') { mid.appendChild(el('div', 'note calm tier-note', noteKako)); }
+    if (name === 'renshu') { var bar = el('div', 'condbar'); bar.id = 'condbar'; mid.appendChild(bar); }
     var log = el('div', 'tier-log'); log.id = 'tier-log'; log.setAttribute('role', 'log');
-    t.appendChild(log);
+    mid.appendChild(log);
+    t.appendChild(mid);
     var foot = el('div', 'tier-foot');
     var state = el('div', 'tier-state'); state.id = 'tier-state'; state.setAttribute('role', 'status');
     var ta = el('textarea', 'tier-in'); ta.id = 'tier-in'; ta.placeholder = W['W-130']; ta.setAttribute('aria-label', W['W-130']);
     ta.value = S.drafts[name] || '';
     var row = el('div', 'tier-btns');
     foot.appendChild(state); foot.appendChild(ta);
-    if (name === 'seiri') {
-      state.textContent = L.seiriState;
-      row.appendChild(linkbtn(L.seiriGo, function () { goView('seiri'); }, 'body-size'));
-      row.appendChild(btn(L.arrangeBtn, 'btn-second sendbtn', function () { goView('seiri'); }));
+    if (name === 'mirai') {
+      state.textContent = L.miraiState;
+      row.appendChild(linkbtn(L.miraiGo, function () { goView('seiri'); }, 'body-size'));
     }
     if (name === 'kako') {
       row.appendChild(btn(L.kakoEnd, 'btn-second sendbtn', openKakoEnd));
@@ -2288,7 +2337,7 @@ var BRAND_FIGURES = true;
     send.id = 'tier-send';
     row.appendChild(send);
     foot.appendChild(row);
-    if (name === 'renshu' || name === 'seiri') { foot.appendChild(el('p', 'tier-note-s', W['W-138'])); }
+    if (name === 'renshu') { foot.appendChild(el('p', 'tier-note-s', W['W-138'])); }
     t.appendChild(foot);
     body.appendChild(t);
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.altKey) { ev.preventDefault(); sendTier(name); } });
@@ -2305,16 +2354,60 @@ var BRAND_FIGURES = true;
     ta.hidden = done; send.hidden = done; again.hidden = !done;
   }
 
+  /* 今はなしたいこと の やりとりが 空で、まだ 回を 始めていないとき、欄の 頭に 出す 選択肢（問いの向き・といの かず・はじめる）。
+     ホームの「きょうの気分」と 同じ入れ物（S.mood）に 選びを 持つ。絵は 置かない。 */
+  function startPick() {
+    var box = el('div', 'start-pick');
+    var secA = el('div', 'pick-sec');
+    var headA = el('div', 'pick-head');
+    add(headA, el('h4', 'mood-h', W['W-173']), linkbtn(W['W-43'], function () { S.mood.dir = null; S.mood.limit = null; paint(); }, 'body-size'));
+    add(secA, headA, el('p', 'tiny', W['W-174']));
+    var dirRow = el('div', 'chips pick-dirs');
+    dirRow.setAttribute('role', 'group'); dirRow.setAttribute('aria-label', W['W-265']);
+    var dirBtns = [];
+    DIRS.forEach(function (d) {
+      var b = el('button', 'chip-btn', W[d.title]); b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { S.mood.dir = (S.mood.dir === d.key) ? null : d.key; paint(); });
+      dirRow.appendChild(b); dirBtns.push([d.key, b]);
+    });
+    secA.appendChild(dirRow);
+    var secB = el('div', 'pick-sec');
+    var headB = el('div', 'pick-head');
+    headB.appendChild(el('h4', 'mood-h', W['W-244']));
+    var limRow = el('div', 'chips pick-nums');
+    limRow.setAttribute('role', 'group'); limRow.setAttribute('aria-label', W['W-244']);
+    var limBtns = [];
+    W['W-245'].split(' ／ ').forEach(function (t) {
+      var n = parseInt(t, 10);
+      var b = el('button', 'chip-btn', t); b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { S.mood.limit = (S.mood.limit === n) ? null : n; paint(); });
+      limRow.appendChild(b); limBtns.push([n, b]);
+    });
+    headB.appendChild(limRow);
+    add(secB, headB, el('p', 'tiny', W['W-246']));
+    var row = el('div', 'pick-row');
+    row.appendChild(btn(W['W-47'], 'btn-main', function () { startRun(S.mood.dir, S.mood.limit); }));
+    add(box, secA, secB, row);
+    function paint() {
+      dirBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.dir === p[0] ? 'true' : 'false'); });
+      limBtns.forEach(function (p) { p[1].setAttribute('aria-pressed', S.mood.limit === p[0] ? 'true' : 'false'); });
+    }
+    paint();
+    return box;
+  }
+
   function paintLog(name) {
     var log = $('tier-log');
     if (!log) { return; }
     clear(log);
+    var morning = (name === 'renshu' && S.morning);
+    if (morning) { log.appendChild(msgNode({ who: 'sys', text: L.morningAsk })); }
     var msgs = S.chat[name];
     if (!msgs.length) {
-      var ef = figure('koto', 'fig-64');
-      var es = el('div', 'empty-s', W['W-139']);
-      if (ef) { var ew = el('div', 'empty-wrap'); add(ew, ef, es); log.appendChild(ew); }
-      else { log.appendChild(es); }
+      if (name === 'renshu' && !S.practice) { log.appendChild(startPick()); return; }
+      if (!morning) { log.appendChild(el('div', 'empty-s', W['W-139'])); }
       return;
     }
     msgs.forEach(function (m) { log.appendChild(msgNode(m)); });
@@ -2410,7 +2503,7 @@ var BRAND_FIGURES = true;
 
   function openVisible() {
     var wrap = el('div');
-    add(wrap, el('p', null, W['W-152']), el('p', null, S.rail === 'kako' ? L.kakoLocal : W['W-153']));
+    add(wrap, el('p', null, W['W-152']), el('p', null, S.rail === 'kako' ? L.kakoLocal : (S.rail === 'mirai' ? L.miraiLocal : W['W-153'])));
     if (S.rail === 'renshu') { wrap.appendChild(el('p', null, W['W-263'])); }
     openModal(W['W-126'].replace(/[:：].*$/, ''), wrap, { cls: 'narrow' });
   }
@@ -2427,12 +2520,12 @@ var BRAND_FIGURES = true;
       pushMsg('kako', { who: 'me', text: text, at: new Date().toISOString() });
       return;
     }
-    if (name === 'seiri') {
-      ta.value = ''; S.drafts.seiri = '';
-      var cur = S.stmt.sections.trouble;
-      S.stmt.sections.trouble = cur ? cur + '\n' + text : text;
-      pushMsg('seiri', { who: 'me', text: text, at: new Date().toISOString() });
-      pushMsg('seiri', { who: 'sys', text: L.seiriAdded });
+    if (name === 'mirai') {
+      ta.value = ''; S.drafts.mirai = '';
+      var cur = S.stmt.sections.wish;
+      S.stmt.sections.wish = cur ? cur + '\n' + text : text;
+      pushMsg('mirai', { who: 'me', text: text, at: new Date().toISOString() });
+      pushMsg('mirai', { who: 'sys', text: L.miraiAdded });
       if (S.view === 'seiri') { showView('seiri', true); }
       return;
     }
@@ -2485,6 +2578,14 @@ var BRAND_FIGURES = true;
     $('btn-leftmin').addEventListener('click', function () { ui.leftMin = !ui.leftMin; saveUi(); applyLayout(); });
     $('btn-railmin').addEventListener('click', function () { ui.railMin = !ui.railMin; saveUi(); applyLayout(); if (!ui.railMin) { scrollLogBottom(); } });
     $('btn-chatback').addEventListener('click', function () { ui.leftMin = true; ui.railMin = false; saveUi(); applyLayout(); scrollLogBottom(); });
+    $('btn-railnote').addEventListener('click', function () { setNote(!noteOpen); });
+    var bgRow = el('label', 'bg-row'); bgRow.id = 'bg-row';
+    var bgSw = el('span', 'switch');
+    var bgIn = el('input'); bgIn.type = 'checkbox'; bgIn.id = 'bg-white-in';
+    add(bgSw, bgIn, el('span', 'slot'));
+    add(bgRow, bgSw, el('span', null, W['W-266']));
+    $('rail-note').appendChild(bgRow);
+    bgIn.addEventListener('change', function () { setBg(bgIn.checked); });
     $('btn-showmain').addEventListener('click', function () {
       ui.railMin = true; saveUi(); applyLayout(); window.scrollTo(0, 0); $('main').scrollTop = 0;
       try { $('btn-chatback').focus(); } catch (e) { /* 何もしない */ }

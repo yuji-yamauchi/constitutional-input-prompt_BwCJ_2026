@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="brand.css">
 <link rel="stylesheet" href="boards.css">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="mood.css">
 <link rel="stylesheet" href="mobile.css">
 <script src="app.js" defer></script>
 </head>
@@ -85,14 +86,18 @@
     <div class="rail-chatonly" id="rail-chatonly">
       <span data-w="W-131a"></span>
       <button type="button" class="linkbtn" id="btn-showmain" data-w="W-131b"></button>
+      <button type="button" class="linkbtn" id="btn-railnote" data-w="W-131c" aria-expanded="false" aria-controls="rail-note"></button>
     </div>
     <div class="rail-head">
       <div class="rail-head-text">
-        <div class="rail-title" data-w="W-120"></div>
-        <div class="rail-desc" data-w="W-121"></div>
+        <div class="rail-note" id="rail-note">
+          <div class="rail-title" data-w="W-120"></div>
+          <div class="rail-desc" data-w="W-121"></div>
+          <div class="rail-vis" id="rail-vis"></div>
+        </div>
         <select id="rail-sel" class="rail-sel" data-w-label="W-122">
+          <option value="mirai" data-w="W-123b"></option>
           <option value="renshu" data-w="W-123a"></option>
-          <option value="seiri" data-w="W-123b"></option>
           <option value="kako" data-w="W-123c"></option>
         </select>
       </div>

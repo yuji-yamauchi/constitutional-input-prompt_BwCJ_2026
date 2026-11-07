@@ -143,6 +143,21 @@ button, input, select, textarea { font: inherit; font-family: var(--font-brand);
 .rail-chatonly {
   display: none; padding: 6px 12px; background: var(--mint-pale); border-bottom: 1px solid #CFE3C5; font-size: 12px;
 }
+/* ③④ チャットだけ表示のとき: 見出し・説明・見える人の行は「注釈」を押したときだけ出す */
+.rail-vis { display: none; }
+body.chat-only .rail-note { display: none; }
+body.chat-only .rail.note-open .rail-note { display: block; }
+body.chat-only .rail.note-open .rail-vis { display: block; margin: 0 0 8px; }
+/* 第 6 弾: 低い画面で 注釈を 開いたとき、注釈は 画面の高さから 他の 固定の高さ（帯・切替の行・段の見出し・条件の札・題の行・やりとりの 最小・入力の足）を 引いた 高さまで。超える分は 注釈の中で 流れる。 */
+body.chat-only .rail.note-open .rail-note { max-height: calc(100vh - 528px); max-height: calc(100dvh - 528px); overflow-y: auto; }
+/* 第 6 弾: 範囲（.tier-mid）が 低いとき、中身（条件の札・やりとり）は 範囲の中で 流れる＝入力の足に 重ならない。やりとりの欄は 48px より 低くしない。 */
+body.chat-only .tier-mid { overflow-y: auto; }
+body.chat-only .tier-mid > .tier-log { min-height: 48px; }
+body.chat-only .rail-vis .visline { padding: 4px 0 6px; border-bottom: 0; }
+body.chat-only .tier .visline { display: none; }
+/* 第 2 弾②: 入力欄の下の一文（W-138）は、チャットだけ表示のときは注釈の中に出し、入力欄の下では出さない */
+body.chat-only .rail-vis .tier-note-s { margin: 0; }
+body.chat-only .tier-foot .tier-note-s { display: none; }
 .rail-head { display: flex; gap: 8px; align-items: flex-start; padding: 12px 12px 8px; border-bottom: 1px solid var(--line); }
 .rail-head-text { flex: 1 1 auto; min-width: 0; }
 .rail-title { font-weight: 700; font-size: 14px; }
@@ -155,10 +170,28 @@ button, input, select, textarea { font: inherit; font-family: var(--font-brand);
 
 .tier { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 .tier-head { font-size: 12.5px; font-weight: 700; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.tier-head { display: none; }   /* 段の名は上の「えらぶところ」と同じ字なので出さない（山内さん 2026-11-07） */
 .visline { font-size: 11px; padding: 4px 12px 6px; border-bottom: 1px dotted var(--line); color: var(--brown-soft); display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: center; }
 .tier-note { margin: 8px 12px 0; }
 .condbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 12px 0; }
 .tier-log { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+/* 第 5 弾①: 背景の絵（boards.css の変数）は、段の見出しと 入力の足の あいだ（.tier-mid）いっぱいに 敷く（cover・中央）。絵は 範囲に 固定（やりとりだけが 上を 流れる）。
+   字の 地は 薄い白を 全体に 重ね、吹き出しの外の 小さな字には 白い 地を 別に 足す（下の .tier-dir 等）。 */
+.tier-mid { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.tier[data-tier] .tier-mid { background-repeat: no-repeat; background-position: center center; background-size: cover; }
+.tier[data-tier="renshu"] .tier-mid { background-image: linear-gradient(rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.66)), var(--img-board-03-seat-empty-scene); }
+.tier[data-tier="mirai"] .tier-mid { background-image: linear-gradient(rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.66)), var(--img-board-04-seat-empty-scene); }
+.tier[data-tier="kako"] .tier-mid { background-image: linear-gradient(rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.66)), var(--img-board-02-empty-scene); }
+/* 第 5 弾②: 絵なしの設定と、注釈の「背景を 白に する」が 入のとき（body.bg-white）は 絵を 出さない（帯の 地＝白） */
+body[data-figures="0"] .tier .tier-mid, body.bg-white .tier .tier-mid { background-image: none; }
+/* 吹き出しの外の 小さな字の 地（絵の上でも 読めるように） */
+.tier-mid .tier-dir { align-self: flex-start; margin: 4px 12px 0; padding: 2px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.86); }
+.tier-mid .visline { background: rgba(255, 255, 255, 0.86); }
+.tier-log .empty-s { padding: 2px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.86); }
+.start-pick .pick-head, .start-pick .pick-sec .tiny { background: rgba(255, 255, 255, 0.86); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.86); border-radius: 6px; }
+/* 注釈の中の 切替の行 */
+.bg-row { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; font-size: 12px; cursor: pointer; }
+body[data-figures="0"] .bg-row { display: none; }
 .tier-foot { border-top: 1px solid var(--line); padding: 8px 10px; }
 .tier-state { font-size: 10.5px; color: var(--brown-soft); min-height: 1.4em; }
 .tier-dir { font-size: 11px; color: var(--brown-soft); padding: 4px 12px 0; line-height: 1.6; }
@@ -339,6 +372,7 @@ table.counts td.n { text-align: right; font-variant-numeric: tabular-nums; }
 .figure { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
 .fig-img { display: block; background-repeat: no-repeat; background-position: center; background-size: cover; }
 .fig-name { font-size: 11px; line-height: 1.4; color: var(--brown-soft); }
+.fig-hero .fig-name { display: none; }   /* ホームの挨拶の絵は、名の字を出さない（絵は出す） */
 .fig-hero .fig-img { width: 150px; aspect-ratio: 293 / 215; background-image: var(--img-hero-teku); background-size: contain; }
 .fig-kiro .fig-img { background-image: var(--img-badge-kiro); }
 .fig-mana .fig-img { background-image: var(--img-badge-mana); }
@@ -353,6 +387,25 @@ body[data-figures="0"] .figure { display: none !important; }
 .empty-fig .empty { margin: 0; }
 .empty-wrap { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 8px 0; }
 .empty-wrap .empty-s { margin: 0; }
+/* 第 3 弾③: 今はなしたいこと の 空の欄の 頭に 出す 選択肢（第 4 弾②で 詰めた） */
+.start-pick { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 4px; }
+.start-pick .pick-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.start-pick .mood-h { margin: 0; font-size: 12.5px; font-weight: 700; }
+.start-pick .pick-head .linkbtn { font-size: 11.5px; padding: 0; }
+.start-pick .pick-sec .tiny { margin: 2px 0 4px; font-size: 10.5px; line-height: 1.5; }
+.start-pick .pick-dirs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0; }
+.start-pick .pick-dirs .chip-btn { padding: 4px 6px; font-size: 11.5px; line-height: 1.4; text-align: center; }
+.start-pick .pick-nums { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.start-pick .pick-nums .chip-btn { padding: 4px 12px; }
+.start-pick .pick-row { display: flex; gap: 10px; align-items: center; padding-top: 6px; border-top: 1px dotted var(--line); }
+@media (max-width: 760px) {
+  .start-pick .pick-sec .tiny { display: none; }
+  .start-pick .chip-btn { min-height: 36px; }
+  .start-pick .pick-dirs .chip-btn { padding: 4px 4px; font-size: 11px; }
+  .start-pick .pick-head .linkbtn { padding: 4px 0; min-height: 0; }
+  .start-pick .pick-row { padding-top: 4px; }
+  .start-pick .pick-row .btn { min-height: 40px; padding: 6px 18px; }
+}
 .fig-slot { margin: 0 0 8px; }
 .fig-slot:empty { display: none; }
 .board-slot:empty { display: none; }
@@ -398,6 +451,7 @@ body[data-figures="0"] .board { display: none; }
   .left .left-name, .left .nav-h, .left .nav-btn .lbl, .left .left-foot { display: none; }
   .left .nav-btn { justify-content: center; padding: 8px 0; border-left: 0; }
   .grid2 { grid-template-columns: 1fr; }
+  .bg-row { min-height: 40px; }
 }
 @media (max-width: 640px) {
   .dir-card { flex: 1 1 100%; max-width: none; display: flex; align-items: center; gap: 10px; }

@@ -135,6 +135,48 @@ How Claude was used in this project:
   confirming who wrote a record, applying a provision to a person, and judging a
   person's state — which this app does not do at all.
 
+### Parts that were not made with Claude
+
+So that the judging scope is unambiguous:
+
+- **The speaking segment of the demo video** was produced with **HeyGen**, from the
+  author's own photograph and the author's own recorded voice. The HeyGen watermark
+  is visible in that part of the video. Not made with Claude.
+  The author has after-effects of a cerebral haemorrhage — no hearing in the left
+  ear, and a stutter. That is the reason a separate service was used there.
+- **The illustration embedded in the screen** (`app_src/vault_app/static/mood.css`)
+  was drawn by a person during the event, as brand artwork. **Copyright is held by
+  合同会社HOHOHO (HOHOHO LLC).** Not made with Claude.
+
+Everything else in this repository — the specifications, the implementation, the
+inspection reports and this README — was produced through Claude Code.
+
+---
+
+## What is real, and what is staged
+
+Stated plainly, because a demo that looks like something it is not is worse than
+a smaller demo.
+
+| | In this submission |
+|---|---|
+| **The person's own screens** — writing, the day's row, the marks, handing over | **Real.** They run. |
+| **The sixty questions** | **Real.** They run from files; no database is involved. |
+| **The replies in the conversation** | **Prepared in advance.** The screen says so where they appear. The design connects to Claude through the API; that connection is not in this submission. |
+| **Analysis of past records by the model** | **Not present at all.** Deliberately. Reading someone's own past back to them through a model, with no one else in the room, is the one thing this design refuses. |
+| **Storing photographs of records / handing a history to a supporter** | **Mock-up only.** The security design is not finished, so nothing real is stored. |
+
+---
+
+## What comes next
+
+Written as plans, not as claims:
+
+- **An API will be built.** The first intended use is connecting this to the
+  author's own welfare-services application, in real operation.
+- **The analysis feature and the storing of past records stay mock-ups** until the
+  security design is done.
+
 ---
 
 ## Data
@@ -182,7 +224,41 @@ Two tracks, and they are different:
 
 二つ目が要点です。この器が要るのは、**障がいの情報を集めるためではなく、自分の情報を自分で持てるようにするため**です。それが、困ったことが起きたときに、その人が**立つ場所**になります。
 
+### 本物と、仮の物
+
+小さいデモより、**違う物に見えるデモ**のほうが悪いので、先に書きます。
+
+| | この提出物では |
+|---|---|
+| **本人の画面**（書く・今日の欄・印・わたす） | **本物です。** 動きます |
+| **60 問の問い** | **本物です。** ファイルから動きます。データベースは使っていません |
+| **会話の返事** | **あらかじめ用意した物です。** 画面にもそう出ます。設計は API で Claude につなぐ形にしてあります（今回はつないでいません） |
+| **過去の記録を AI が分析すること** | **ありません。** 意図して置いていません。自分の過去を、他に誰も居ない所で、AI に読み返されること——この設計が唯一ことわっているのが、そこです |
+| **記録の写真の保存／支援者へ育成歴を渡すこと** | **モックアップだけです。** セキュリティの設計が終わっていないので、本物は何も保存しません |
+
+### これからの予定
+
+**予定として書きます。できることとしては書きません。**
+
+- **API は作ります。** まず、著者の会社が運営する**福祉事業向けのアプリ**と接続して、実運用する予定です。
+- **分析の機能と、過去の記録の保存は、セキュリティの設計が終わるまでモックアップのまま**です。
+
+### Claude で作っていない部分
+
+審査の範囲がはっきりするように書きます。
+
+- **デモ動画の話者の区間**は、**HeyGen** で作りました（著者本人の写真と、著者本人が読んだ録音から）。
+  その区間には **HeyGen のウォーターマークが映っています。Claude で作った物ではありません。**
+  著者には脳出血の後遺症があり、**左耳が聴こえず、吃音があります。**
+  話者の区間に別のサービスを使ったのは、そのためです。
+- **画面に埋め込んだ絵**（`app_src/vault_app/static/mood.css`）は、期間中に**人が描いた**ブランドの絵で、
+  **著作権は合同会社HOHOHO が所有**しています。**Claude で作った物ではありません。**
+
+ほかは全部——仕様書も、実装も、検品の報告も、この README も——**Claude Code を通して作りました。**
+
+---
+
 - **テーマ**: 1「あなたにしかない深さを。」
-- **動かし方**: 上の "How to run it" を参照（提出前に記入）
+- **動かし方**: 上の "How to run it" を参照
 - **データ**: デモ素材はすべて自作です。**個人情報は含みません。** 実在の利用者の記録は使っていません。
 - **ライセンス**: コードは MIT／画像・ロゴ・名称などは再利用不可

@@ -1,58 +1,19 @@
 /* mobile.css - スマホの幅（760px 以下）だけに効く上書き。
    app.css と app.js は触らない。字は足さない（文言は app.js の表のまま）。
-   左の帯 → 上の横タブ／右の帯（チャット）→ 開いたときは画面いっぱい／押す所は 40〜44px 以上／入力は 16px。 */
+   左の帯は縦のまま（幅 60px・絵だけ。app.css の 760px の規則が土台）／右の帯（チャット）→ 開いたときは帯の横で画面いっぱい／押す所は 40〜44px 以上／入力は 16px。 */
 
 @media (max-width: 760px) {
 
-  /* ---------- 骨：縦に積む ---------- */
-  .shell { flex-direction: column; align-items: stretch; min-height: 100dvh; }
-
-  /* ---------- 左の帯 → 上の横タブ（sticky） ---------- */
-  .left, .left.side-min {
-    position: sticky; top: 0; z-index: 40;
-    width: 100%; height: auto;
-    flex-direction: row; align-items: center; gap: 4px;
-    border-right: 0; border-bottom: 1px solid var(--line);
-    padding: 6px 6px 6px max(6px, env(safe-area-inset-left));
-    padding-top: max(6px, env(safe-area-inset-top));
-    box-shadow: 0 2px 8px rgba(90, 70, 52, 0.06);
-  }
-  .left .left-head, .left.side-min .left-head {
-    display: contents;
-  }
-  .left .left-name, .left #btn-leftmin, .left .left-foot, .left .nav-h { display: none !important; }
-
-  /* 読み直す（左端）・チャット（右端） */
-  .left .dot-btn { order: 0; width: 40px; height: 40px; }
+  /* ---------- 左の帯（縦・60px・絵だけ）。形は app.css の @media (max-width: 760px) の規則のまま。ここでは押す所の大きさだけ上げる ---------- */
+  .left .left-head { padding: 10px 8px 6px; gap: 8px; }
+  .left .dot-btn { width: 40px; height: 40px; }
   .left .chat-back {
-    order: 2; display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     width: 44px; height: 44px; border-radius: 12px; font-size: 18px;
     background: var(--mint-pale); border: 1.5px solid var(--mint); color: var(--mint-deep);
   }
   body.chat-only .left .chat-back { background: var(--mint); color: #3C3024; }
-
-  /* 横タブ */
-  .left .nav, .left.side-min .nav {
-    order: 1; flex: 1 1 auto; min-width: 0;
-    display: flex; flex-direction: row; gap: 6px;
-    overflow-x: auto; overflow-y: hidden; padding: 0 2px;
-    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
-            mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
-  }
-  .left .nav::-webkit-scrollbar { display: none; }
-  .left .nav-btn, .left.side-min .nav-btn {
-    flex: none; width: auto; justify-content: flex-start; scroll-snap-align: start;
-    min-height: 44px; padding: 0 14px 0 10px; gap: 6px;
-    border: 1.5px solid var(--line); border-left: 1.5px solid var(--line); border-radius: 999px;
-    background: var(--paper); white-space: nowrap; font-size: 13px;
-  }
-  .left .nav-btn .lbl, .left.side-min .nav-btn .lbl { display: inline !important; }
-  .left .nav-btn .ico, .left .nav-btn .ico svg { width: 18px; height: 18px; }
-  .left .nav-btn[aria-current="page"] {
-    background: var(--mint-pale); border-color: var(--mint); color: var(--mint-deep);
-  }
+  .left .nav-btn { min-height: 44px; }
 
   /* ---------- 本文 ---------- */
   .center { min-height: 0; }
@@ -64,18 +25,20 @@
   /* ---------- 右の帯（チャット） ---------- */
   /* 本文を見ているあいだは出さない（チャットは右上の釦で開く） */
   body:not(.chat-only) .rail { display: none; }
-  /* 開いたときは画面いっぱい。入力は下に張り付く */
+  /* 開いたときは帯の横で画面いっぱい。入力は下に張り付く（骨を縦に伸ばし、帯と右の帯を骨の高さに合わせる） */
   body.chat-only { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   body.chat-only > .band { flex: none; }
-  body.chat-only .shell { flex: 1 1 auto; min-height: 0; }
+  body.chat-only .shell { flex: 1 1 auto; min-height: 0; align-items: stretch; }
+  body.chat-only .left { position: relative; top: auto; height: auto; }
   body.chat-only .rail {
     position: relative; top: auto; height: auto; flex: 1 1 auto; min-height: 0;
-    width: 100%; min-width: 0; max-width: none; border-left: 0;
+    min-width: 0; max-width: none; border-left: 0;
   }
   .rail-chatonly { display: flex !important; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 12px; }
+  .rail-chatonly > span { flex: 1 1 auto; min-width: 0; }
   .rail-chatonly .linkbtn {
     min-height: 36px; padding: 0 12px; border-radius: 999px; text-decoration: none; font-weight: 700;
-    background: var(--paper); border: 1.5px solid var(--mint); font-size: 12.5px;
+    background: var(--paper); border: 1.5px solid var(--mint); font-size: 12.5px; flex: none; white-space: nowrap;
   }
   .rail-head { padding: 10px 12px 8px; }
   .rail-desc { font-size: 11px; }
