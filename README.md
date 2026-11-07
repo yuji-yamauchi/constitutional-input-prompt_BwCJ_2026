@@ -148,16 +148,38 @@ How Claude was used in this project:
 So that the judging scope is unambiguous:
 
 - **The speaking segment of the demo video** was produced with **HeyGen**, from the
-  author's own photograph and the author's own recorded voice. The HeyGen watermark
-  is visible in that part of the video. Not made with Claude.
+  author's own photograph and the author's own recorded voice. Not made with Claude.
   The author has after-effects of a cerebral haemorrhage — no hearing in the left
   ear, and a stutter. That is the reason a separate service was used there.
 - **The illustration embedded in the screen** (`app_src/vault_app/static/mood.css`)
   was drawn by a person during the event, as brand artwork. **Copyright is held by
   合同会社HOHOHO (HOHOHO LLC).** Not made with Claude.
+- **Some of the fact-checking was deliberately not Claude.** Numbers and claims in
+  the script, and the statutory copies, were also put to large language models from
+  other makers. This was on purpose: a check run inside one model family is not an
+  outside check. Those results are not Claude's output, and the final call on each
+  one was the author's.
 
 Everything else in this repository — the specifications, the implementation, the
 inspection reports and this README — was produced through Claude Code.
+
+---
+
+## How this was checked, and what went wrong
+
+Two reports, in [`10_inspection/`](10_inspection/):
+
+- **The inspection report** — 371 tests on the container (195 of them negative
+  controls), 3 gates, the 7 statutory articles against the original text, and 56
+  documents in this repository. Every section declares its own scope, including
+  **what is known to be out of scope** — among it the one closed loop we could not
+  get out of: these documents were written and inspected by the same seat.
+- **The incident report** — the **14 things that went wrong** while building this,
+  with who found each one. Half of them were the same failure: **wrote it without
+  checking.** The operations that were stopped are written down as stopped.
+
+**Zero failures is another name for not having recorded them.** The specification of
+the deliverable is in [`02_spec/`](02_spec/).
 
 ---
 
@@ -296,6 +318,19 @@ Two tracks, and they are different:
 
 ---
 
+### どう検査したか、そして何が失敗したか
+
+[`10_inspection/`](10_inspection/) に二本あります。
+
+- **検品報告書** — 器の検査 371 本（うち**陰性対照 195 本**）・門 3 本・法令 7 条の原文との突合・
+  このリポジトリの文書 56 本。**各節に射程の自己申告**つきで、**既知の射程外**も書いています。
+  そこには**抜け出せなかった閉ループ**も入っています＝**これらの文書は、書いた席が自分で検査しています。**
+- **インシデント報告書** — 作っているあいだに起きた**失敗 14 件**を、誰が見つけたかとともに。
+  **半分が同じ失敗**＝**確かめずに書いた。** **止められた操作も、止められたと書いています。**
+
+**失敗 0 は、記録していないことの別名です。**
+納品物の仕様書は [`02_spec/`](02_spec/) にあります。
+
 ### これからの予定
 
 **予定として書きます。できることとしては書きません。**
@@ -308,11 +343,15 @@ Two tracks, and they are different:
 審査の範囲がはっきりするように書きます。
 
 - **デモ動画の話者の区間**は、**HeyGen** で作りました（著者本人の写真と、著者本人が読んだ録音から）。
-  その区間には **HeyGen のウォーターマークが映っています。Claude で作った物ではありません。**
+  **Claude で作った物ではありません。**
   著者には脳出血の後遺症があり、**左耳が聴こえず、吃音があります。**
   話者の区間に別のサービスを使ったのは、そのためです。
 - **画面に埋め込んだ絵**（`app_src/vault_app/static/mood.css`）は、期間中に**人が描いた**ブランドの絵で、
   **著作権は合同会社HOHOHO が所有**しています。**Claude で作った物ではありません。**
+- **事実確認の一部は、わざと Claude ではありません。** 台本の数字や主張、法令の写しは、
+  **ほかの作り手の大規模言語モデルにも当てました。** 意図してそうしています。
+  **同じモデルの系統の中で検査しても、それは外の検査になりません。**
+  その結果は Claude の出力ではなく、一つ一つを最後に判断したのは著者です。
 
 ほかは全部——仕様書も、実装も、検品の報告も、この README も——**Claude Code を通して作りました。**
 
