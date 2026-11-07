@@ -2,6 +2,14 @@
 
 **自己の意思表出としてのプロンプトを。誰もが立てる場所を、ここに。**
 
+**A capability-support app.** It does not measure capability — nobody can; what is
+observable is only what was achieved. What it does is widen the room a person has
+to form an intention of their own, and keep them the author of it.
+
+**ケイパビリティサポートアプリ**です。ケイパビリティ（＝選べたことの広がり）を
+**測る**道具ではありません。測れるのは達成の方だけです。この器がするのは、
+**本人が自分の意思をかたちづくる場を広げ、その著者であり続けられるようにすること**です。
+
 Built with Claude: Japan 2026 submission.
 
 > **On the name.** "Constitutional" here is not a model's constitution, and this is
