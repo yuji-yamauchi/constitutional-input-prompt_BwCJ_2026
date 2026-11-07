@@ -176,6 +176,30 @@ a smaller demo.
 
 ---
 
+## Measuring happens only when three are present
+
+What this tool will do depends on **who is in the room.**
+
+| Who is present | What it will do |
+|---|---|
+| **The person alone** | **Record only. It does not measure.** |
+| **The person and Claude** | **Record only. It does not measure.** |
+| **The person, Claude, and a supporter** | Only if **the person decides so**, past records (the day's mood and so on) may be used to look at **change**, and at how fast it moves |
+
+**Why split it this way.**
+
+The same number is a mirror when it is **returned to the person as a verdict**, and a
+self-portrait when it is **material the person draws with**. What divides them is not
+the instrument. It is **how it comes back, and who is there when it does.**
+
+Close the loop with only the person and the model in it, and an interpretation comes
+back to the person with **nobody there to disagree with it.** With a human in the room,
+it comes back to someone who can say **"that is wrong."**
+
+So this is not a setting that toggles measuring on and off. **It is decided by who is present.**
+
+---
+
 ## What comes next
 
 Written as plans, not as claims:
@@ -243,6 +267,28 @@ Two tracks, and they are different:
 | **会話の返事** | **あらかじめ用意した物です。** 画面にもそう出ます。設計は API で Claude につなぐ形にしてあります（今回はつないでいません） |
 | **過去の記録を AI が分析すること** | **ありません。** 意図して置いていません。自分の過去を、他に誰も居ない所で、AI に読み返されること——この設計が唯一ことわっているのが、そこです |
 | **記録の写真の保存／支援者へ育成歴を渡すこと** | **モックアップだけです。** セキュリティの設計が終わっていないので、本物は何も保存しません |
+
+### 測るのは、三人そろったときだけ
+
+この器は、**誰がその場に居るか**で、できることを変えます。
+
+| その場に居るのは | できること |
+|---|---|
+| **本人だけ** | **記録だけ。測りません。** |
+| **本人と AI** | **記録だけ。測りません。** |
+| **本人と AI と支援者** | **本人がそう決めたときに限り**、過去の記録（きょうの気分など）を使って、**変化**や、その**速さ**を見ます |
+
+**なぜ、こう分けるのか。**
+
+同じ数字でも、**本人に返される判定**なら鏡になり、**本人が自分を描くための素材**なら自画像になります。
+分かれ目は、道具ではありません。**返し方と、そのときに誰が居るか**です。
+
+本人と AI の二人だけで閉じると、**解釈が、異議を言う相手のいないまま本人に返ります。**
+人が間に入っていれば、解釈は「**違う**」と言える相手がいる状態で返ります。
+
+だから「測る／測らない」を設定で切り替えるのではなく、**その場に誰が居るかで決まる**形にしています。
+
+---
 
 ### これからの予定
 
