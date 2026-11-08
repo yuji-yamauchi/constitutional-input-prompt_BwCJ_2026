@@ -189,7 +189,8 @@ class T_Api(_Base):
             self.assertNotIn(bad, json.dumps(run, ensure_ascii=False))
         path = os.path.join(v.root, "kibun", DAY + ".json")
         self.assertTrue(os.path.isfile(path))
-        self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
+        if os.name == "posix":    # v0.14: 権限の 数字だけ POSIX に 限る（test_v03 T_Permissions と 同じ 条件）。作られ・置き換わり・next_id は どの OS でも 見る
+            self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
         st, j, _, _ = s.call("GET", "/api/kibun/items")
         self.assertEqual(j["next_id"], 3)
         # 2 回目は 新しい 回（同じ 日の ファイルに 並ぶ）
@@ -275,7 +276,7 @@ class T_Screen(unittest.TestCase):
             self.assertIsNone(PUSHY.search(v), code)
         self.assertEqual(_w_value(js, "W-268"), "きょうの 気分を きかせて くれるかな？")
         self.assertEqual(_w_value(js, "W-245"), "10 ／ 30 ／ 60")
-        self.assertIn("'W-29': 'v0.3.3 / 2026-11-06'", js)
+        self.assertIn("'W-29': 'v0.3.4 / 2026-11-08'", js)   # v0.15: 画面の版も 聞き役の 指示の文（listener.txt 1 行目）と 同じ 版・日に 揃える
 
     def test_conditions_and_direction_are_gone_from_the_screen(self):
         js = _read("app.js")

@@ -106,6 +106,20 @@ export ANTHROPIC_API_KEY="your key"           # optional — see below
 
 On Windows use `$env:NAME = "..."` (PowerShell) or `set NAME=...` (Command Prompt).
 
+**When you restart a server, check that the old one is really gone.** The files of
+the screen are re-read on every request, but the Python endpoints are read **only at
+startup** — so a process left running serves a new screen with endpoints missing, and
+a feature that is not broken looks broken. This happened to the author on
+2026-11-08. Find the process holding the port, stop it, then start again:
+
+```bash
+netstat -ano | findstr :8765                  # Windows (PowerShell)
+lsof -nP -iTCP:8765 -sTCP:LISTEN              # macOS / Linux
+```
+
+To check that a restart really replaced it, look at the start time of the process
+(`Get-Process python | Select-Object Id, StartTime` in PowerShell).
+
 **Without a key it still works.** Set `CIP_DEMO_MODE=1` and the tool answers from
 recorded responses instead of calling Claude. A banner stays on screen the whole
 time saying so — the screen never claims a recorded answer is a live one.
@@ -198,7 +212,7 @@ a smaller demo.
 |---|---|
 | **The person's own screens** — writing, the day's row, the marks, handing over | **Real.** They run. |
 | **The sixty questions** | **Real.** They run from files; no database is involved. |
-| **The replies in the conversation** | **Prepared in advance.** The screen says so where they appear. The design connects to Claude through the API; that connection is not in this submission. |
+| **The replies in the conversation** | **Prepared in advance, in this demo.** The screen says so where they appear, and a banner stays up the whole time. **The connection to Claude's API is in this submission** — `app_src/vault_app/claude_client.py` calls it directly, with no SDK. Set a key and the same screens answer live. It ships keyless so that anyone — including a judge — can try it without spending their own API credit. |
 | **Analysis of past records by the model** | **Not present at all.** Deliberately. Reading someone's own past back to them through a model, with no one else in the room, is the one thing this design refuses. |
 | **Storing photographs of records / handing a history to a supporter** | **Mock-up only.** The security design is not finished, so nothing real is stored. |
 
@@ -298,7 +312,7 @@ Two tracks, and they are different:
 |---|---|
 | **本人の画面**（書く・今日の欄・印・わたす） | **本物です。** 動きます |
 | **60 問の問い** | **本物です。** ファイルから動きます。データベースは使っていません |
-| **会話の返事** | **あらかじめ用意した物です。** 画面にもそう出ます。設計は API で Claude につなぐ形にしてあります（今回はつないでいません） |
+| **会話の返事** | **このデモでは、あらかじめ用意した物です。** 画面にもそう出ますし、帯が出たままになります。**Claude の API につなぐコードは、この提出物に入っています**（`app_src/vault_app/claude_client.py` が直接 叩きます。追加のライブラリは使っていません）。鍵を入れれば、同じ画面がそのまま本物の応答を返します。鍵なしで動くようにしたのは、**誰でも――审査する方も――自分の API クレジットを使わずに試せるようにするため**です |
 | **過去の記録を AI が分析すること** | **ありません。** 意図して置いていません。自分の過去を、他に誰も居ない所で、AI に読み返されること——この設計が唯一ことわっているのが、そこです |
 | **記録の写真の保存／支援者へ育成歴を渡すこと** | **モックアップだけです。** セキュリティの設計が終わっていないので、本物は何も保存しません |
 

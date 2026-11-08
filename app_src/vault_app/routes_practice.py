@@ -4,7 +4,6 @@
 読み返しは本人の文を 1 字も変えずに返す（コードが作る）。Claude に頼むのは問い 1 文だけ。
 印と回数は「あったことの数」だけ。割合・合計・順位は計算しない。
 """
-from app_src.common import ids
 from app_src.common.httpkit import HttpError
 from app_src.vault_app import claude_client, storage
 from app_src.vault_app.auth import require_login
@@ -26,8 +25,7 @@ D_EMPTY_TEXT = "文が 空です。"
 D_TOO_LONG = "4000字を こえています。"
 D_BAD_MARK = "印の 字が 正しくありません。"
 D_NO_TURN = "この やりとりは 見つかりません。"
-D_BAD_DIRECTION = "問いの 向きが 正しくありません。"
-D_BAD_DAILY_DATE = "日付が 読めません。"
+D_CLOSED_INPUT = "この 送り方は 受け付けません。"      # v0.15: 画面から 届かない 入力（direction の 値・share_daily）は 受け取らない
 
 
 def _body(req):
@@ -51,12 +49,11 @@ def h_conditions(req):
     return 200, {"conditions": [{"key": k, "label": label, "values": list(vals)} for k, label, vals in CONDITIONS]}
 
 
-def _check_direction(d):
-    if d is None:
-        return None
-    if not isinstance(d, str) or d not in claude_client.DIRECTION_LABELS:
-        raise HttpError(400, "bad_direction", D_BAD_DIRECTION)
-    return d
+def _check_closed(body):
+    """v0.15: 画面は direction を 常に null で 送り、share_daily は 送らない。
+    それ以外の 形（direction が null でない・share_daily が false でない）は 使わずに 断る＝サーバーが 受け取れる 口を 残さない。"""
+    if body.get("direction") is not None or body.get("share_daily", False) is not False:
+        raise HttpError(400, "closed_input", D_CLOSED_INPUT)
 
 
 def h_turn(req):
@@ -69,31 +66,18 @@ def h_turn(req):
         raise HttpError(400, "text_empty", D_EMPTY_TEXT)
     if len(text) > MAX_TEXT_CHARS:
         raise HttpError(413, "too_large", D_TOO_LONG)
-    direction = _check_direction(body.get("direction"))
-    share = body.get("share_daily", False)
-    if not isinstance(share, bool):
-        raise HttpError(400, "bad_request", D_BAD_BODY)
-    daily = None
-    if share:
-        try:
-            daily = app.vault.get_daily(body.get("daily_date"))
-        except ValueError:
-            raise HttpError(400, "bad_daily_date", D_BAD_DAILY_DATE) from None
-        if body.get("daily_date") != ids.now_jst()[:10]:          # 添えるのは その日の分だけ（過ぎた日の分は添えない）
-            raise HttpError(400, "bad_daily_date", D_BAD_DAILY_DATE)
-        if not any(daily.get(k) for k in ("bed_time", "wake_time", "breakfast")):
-            daily = None                                   # 空なら 何も添えない
+    _check_closed(body)
     question, reason = None, None
     claude = claude_client.get_client(app)
     if claude is None:
         reason = "claude_unavailable"
     else:
         try:
-            question, reason = claude.ask_question(text, conds, direction, daily)
+            question, reason = claude.ask_question(text, conds)
         except claude_client.ClaudeError:
             question, reason = None, "claude_failed"       # 問いが無くても、読み返しと記録は残す
     readback = text                                        # 1 字も変えない
-    turn_id = app.vault.add_turn(conds, text, readback, question, reason, direction=direction, shared_daily=daily is not None)
+    turn_id = app.vault.add_turn(conds, text, readback, question, reason)   # direction=None・shared_daily=False（欄は 残す。過去の 記録と 同じ 形）
     out = {"turn_id": turn_id, "readback": readback, "question": question, "reason": reason}
     model = getattr(claude, "model", None)
     if isinstance(model, str):

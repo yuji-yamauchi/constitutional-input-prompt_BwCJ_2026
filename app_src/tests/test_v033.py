@@ -135,39 +135,40 @@ class N_DailyApi(_Base):
 
 
 class N_ListenerInput(_Base):
-    def test_bad_direction_is_400(self):
-        s = self.make()
-        self.capture(s)
-        for bad in ("nokosu", "IPPO", "", 1, ["ippo"], True):
-            st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": bad})
-            self.assertEqual((st, j["error"]), (400, "bad_direction"), repr(bad))
-        self.assertEqual(os.listdir(os.path.join(s.app.vault.root, "practice", "turns")) if os.path.isdir(os.path.join(s.app.vault.root, "practice", "turns")) else [], [])
+    # v0.15: 旧「通す側」の 4 件（test_bad_direction_is_400・test_share_daily_needs_a_date・test_key_bytes_do_not_change_with_direction_or_daily・
+    # test_daily_values_are_not_in_the_turn_record_or_the_logs）は 消し、「断る／使わない」側の 4 件に 入れ替えた。
+    def _turn_files(self, s):
+        d = os.path.join(s.app.vault.root, "practice", "turns")
+        return os.listdir(d) if os.path.isdir(d) else []
 
-    def test_share_daily_needs_a_date(self):
-        s = self.make()
-        self.capture(s)
-        base = {"conditions": COND, "text": "朝です。", "share_daily": True}
-        st, j, _, _ = s.call("POST", "/api/practice/turns", base)
-        self.assertEqual((st, j["error"]), (400, "bad_daily_date"))
-        st, j, _, _ = s.call("POST", "/api/practice/turns", dict(base, daily_date="2026-02-30"))
-        self.assertEqual((st, j["error"]), (400, "bad_daily_date"))
-        st, j, _, _ = s.call("POST", "/api/practice/turns", dict(base, share_daily="yes", daily_date=DAY))
-        self.assertEqual(st, 400)
-
-    def test_key_bytes_do_not_change_with_direction_or_daily(self):
+    def test_any_direction_value_is_closed(self):
         s = self.make()
         c = self.capture(s)
-        k0 = c.build_listener("朝です。", COND)[2]
-        k1 = c.build_listener("朝です。", COND, direction="kotoba", daily={"bed_time": BED, "wake_time": WAKE, "breakfast": "no"})[2]
-        self.assertEqual(k0, k1)
-        self.assertEqual(json.loads(k0.decode("utf-8")), {"text": "朝です。", "conditions": COND})
-        self.assertEqual(hashlib.sha256(k0).hexdigest()[:16], hashlib.sha256(k1).hexdigest()[:16])
+        for bad in ("ippo", "kotoba", "wakaranai", "oboeru", "nokosu", "IPPO", "", 1, ["ippo"], True, False):
+            st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": bad})
+            self.assertEqual((st, j["error"]), (400, "closed_input"), repr(bad))
+        self.assertEqual(c.seen, [])
+        self.assertEqual(self._turn_files(s), [])
 
-    def test_daily_values_are_not_in_the_turn_record_or_the_logs(self):
+    def test_share_daily_is_closed_even_with_todays_date(self):
+        s = self.make()
+        c = self.capture(s)
+        self.put(s)
+        for extra in ({"share_daily": True}, {"share_daily": True, "daily_date": DAY}, {"share_daily": "yes", "daily_date": DAY},
+                      {"share_daily": 1, "daily_date": DAY}, {"share_daily": None, "daily_date": DAY}, {"share_daily": True, "daily_date": "2026-02-30"}):
+            body = dict({"conditions": COND, "text": "朝です。"}, **extra)
+            st, j, _, _ = s.call("POST", "/api/practice/turns", body)
+            self.assertEqual((st, j["error"]), (400, "closed_input"), repr(extra))
+        self.assertEqual(c.seen, [])
+        self.assertEqual(self._turn_files(s), [])
+
+    def test_daily_values_never_reach_the_turn_record_or_the_logs(self):
         s = self.make()
         self.capture(s)
         self.put(s)
         st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": "ippo", "share_daily": True, "daily_date": DAY})
+        self.assertEqual((st, j["error"]), (400, "closed_input"))
+        st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": None})
         self.assertEqual(st, 200)
         root = s.app.vault.root
         hits = []
@@ -181,7 +182,22 @@ class N_ListenerInput(_Base):
                     hits.append(f)
         self.assertEqual(hits, [])
         turn = s.app.vault.get_turn(j["turn_id"])
+        self.assertEqual((turn["direction"], turn["shared_daily"]), (None, False))
         self.assertEqual(sorted(k for k in turn if k in ("bed_time", "wake_time", "breakfast", "daily")), [])
+
+    def test_build_listener_takes_text_and_conditions_only(self):
+        s = self.make()
+        c = self.capture(s)
+        with self.assertRaises(TypeError):
+            c.build_listener("朝です。", COND, direction="kotoba")
+        with self.assertRaises(TypeError):
+            c.build_listener("朝です。", COND, None, None)
+        with self.assertRaises(TypeError):
+            c.ask_question("朝です。", COND, None, None)
+        self.assertFalse(hasattr(claude_client, "DIRECTION_LABELS"))
+        self.assertFalse(hasattr(claude_client, "BREAKFAST_LABELS"))
+        key = c.build_listener("朝です。", COND)[2]
+        self.assertEqual(json.loads(key.decode("utf-8")), {"text": "朝です。", "conditions": COND})
 
     def test_daily_is_not_in_the_handoff_bundle(self):
         s = self.make()
@@ -197,10 +213,11 @@ class N_ListenerInput(_Base):
         with open(routes_handoff.__file__, "rb") as f:
             self.assertNotIn(b"daily", f.read())
 
-    def test_listener_header_is_v033(self):
+    def test_listener_header_is_v034(self):
+        # v0.14: 聞き役だけ v0.3.4（2 節を 外した）。reader・arranger は v0.3.1 のまま
         with open(os.path.join(PROMPTS, "listener.txt"), "rb") as f:
             first = f.read().decode("utf-8").replace("\r\n", "\n").split("\n", 1)[0]
-        self.assertEqual(first, "# 版: v0.3.3 / 決めた日: 2026-11-06")
+        self.assertEqual(first, "# 版: v0.3.4 / 決めた日: 2026-11-08")
         for kind in ("reader", "arranger"):
             with open(os.path.join(PROMPTS, kind + ".txt"), "rb") as f:
                 self.assertEqual(f.read().decode("utf-8").replace("\r\n", "\n").split("\n", 1)[0], "# 版: v0.3.1 / 決めた日: 2026-11-05")
@@ -303,63 +320,33 @@ class T_DailyStorage(_Base):
 
 
 class T_ListenerInput(_Base):
-    def test_user_text_has_daily_section_without_null_rows(self):
-        s = self.make()
-        c = self.capture(s)
-        self.put(s, bed=BED, wake=None, bf="no")
-        st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "share_daily": True, "daily_date": DAY})
-        self.assertEqual(st, 200)
-        user = c.seen[-1]
-        self.assertIn("きょうの こと（本人が 伝えると 決めた 分）:\n- ゆうべ ねた 時刻: %s\n- あさごはん: なし" % BED, user)
-        self.assertNotIn("おきた 時刻", user)
-        self.assertNotIn("問いの 向き", user)
-        self.assertGreater(user.index("きょうの こと"), user.index("条件:"))
-        self.assertEqual(s.app.vault.get_turn(j["turn_id"])["shared_daily"], True)
-
-    def test_nothing_is_added_when_off_or_empty(self):
+    # v0.15: 旧 4 件（test_user_text_has_daily_section_without_null_rows・test_nothing_is_added_when_off_or_empty・
+    # test_direction_line_for_every_direction・test_direction_comes_before_daily）は 消し、次の 1 件に 入れ替えた。
+    def test_screen_shaped_bodies_pass_and_add_nothing(self):
         s = self.make()
         c = self.capture(s)
         self.put(s)
-        s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。"})
-        s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "share_daily": False, "daily_date": DAY})
-        st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "share_daily": True, "daily_date": "2020-01-01"})
-        self.assertEqual((st, j["error"]), (400, "bad_daily_date"))     # 過ぎた日の分は添えられない（その日の分だけ）
+        shapes = ({}, {"direction": None}, {"direction": None, "share_daily": False}, {"share_daily": False, "daily_date": DAY})
+        want = "本人の文:\n朝です。\n\n条件:\n" + "\n".join("- %s: %s" % (k, COND[k]) for k in sorted(COND))
+        for extra in shapes:
+            st, j, _, _ = s.call("POST", "/api/practice/turns", dict({"conditions": COND, "text": "朝です。"}, **extra))
+            self.assertEqual(st, 200, repr(extra))
+            turn = s.app.vault.get_turn(j["turn_id"])
+            self.assertEqual((turn["direction"], turn["shared_daily"]), (None, False))
+        self.assertEqual(len(c.seen), 4)
         for user in c.seen:
-            self.assertNotIn("きょうの こと", user)
-            self.assertNotIn(BED, user)
-        self.assertEqual(len(c.seen), 2)
-        turns = [s.app.vault.get_turn(f[:-5]) for f in os.listdir(os.path.join(s.app.vault.root, "practice", "turns"))]
-        self.assertEqual([t["shared_daily"] for t in turns], [False, False])
+            self.assertEqual(user, want)
+            for bad in ("問いの 向き", "きょうの こと", BED, WAKE, "あさごはん"):
+                self.assertNotIn(bad, user)
 
-    def test_direction_line_for_every_direction(self):
-        s = self.make()
-        c = self.capture(s)
-        want = {"ippo": "つぎの 一歩の こと", "kotoba": "ことばに する こと", "wakaranai": "わからない こと", "oboeru": "おぼえて おきたい こと"}
-        for key, label in want.items():
-            st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": key})
-            self.assertEqual(st, 200)
-            self.assertTrue(c.seen[-1].endswith("\n\n問いの 向き: %s" % label), key)
-            self.assertEqual(s.app.vault.get_turn(j["turn_id"])["direction"], key)
-        st, j, _, _ = s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": None})
-        self.assertNotIn("問いの 向き", c.seen[-1])
-        self.assertIsNone(s.app.vault.get_turn(j["turn_id"])["direction"])
-
-    def test_direction_comes_before_daily(self):
-        s = self.make()
-        c = self.capture(s)
-        self.put(s)
-        s.call("POST", "/api/practice/turns", {"conditions": COND, "text": "朝です。", "direction": "kotoba", "share_daily": True, "daily_date": DAY})
-        user = c.seen[-1]
-        self.assertLess(user.index("条件:"), user.index("問いの 向き:"))
-        self.assertLess(user.index("問いの 向き:"), user.index("きょうの こと"))
-
-    def test_listener_prompt_has_the_two_new_sections(self):
+    def test_listener_prompt_keeps_the_promise_lines(self):
+        # v0.14: 「問いの 向き」「きょうの こと」の 2 節は 外した（画面から 届く 経路が 無い。無い ことの 検査は test_v014）。
+        # 外した 節に あった 安全の 決め（良し悪しを 言わない・すすめない）は「やくそく」節の 2 行が 同じ 趣旨で 残る＝ここで 見る。
         with open(os.path.join(PROMPTS, "listener.txt"), "rb") as f:
             raw = f.read().decode("utf-8").replace("\r\n", "\n")
-        for need in ("問いの 向き\n- 本人が 向きを えらんだ ときは", "きょうの こと（ゆうべ ねた 時刻・おきた 時刻・あさごはん）\n- 本人が 伝えると 決めた 日だけ 届きます。",
-                     "- 問いの 材料に して よい だけで、使わなくても かまいません。"):
+        for need in ("やくそく\n", "- 良し悪しは 言いません。ほめも、直しも しません。\n", "- すすめる 言い方は しません。\n", "- 数字は 使いません。\n"):
             self.assertIn(need, raw)
-        self.assertLess(raw.index("きょうの こと（"), raw.index("返す 形"))
+        self.assertLess(raw.index("やくそく\n"), raw.index("返す 形"))
         self.assertEqual(words.scan(raw), [])
 
 
@@ -374,7 +361,7 @@ class T_Screen(unittest.TestCase):
 
     def test_decided_strings(self):
         js = _read("app.js")
-        self.assertEqual(_w_value(js, "W-29"), "v0.3.3 / 2026-11-06")
+        self.assertEqual(_w_value(js, "W-29"), "v0.3.4 / 2026-11-08")   # v0.15: listener.txt の 版と 同じ
         self.assertEqual(_w_value(js, "W-252"), "ゆうべ ねた 時刻")
         self.assertEqual(_w_value(js, "W-242"), "おぼえて おきたい こと")
         self.assertEqual(_w_value(js, "W-243"), "きょう あった ことで、おぼえて おきたい ことを たずねます。")

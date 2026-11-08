@@ -326,7 +326,7 @@ class T_Brand(unittest.TestCase):
     def test_seat_word_and_toggle(self):
         js = _read("app.js")
         self.assertTrue(_w_seat_ok(js))
-        self.assertIn("'W-29': 'v0.3.3 / 2026-11-06'", js)
+        self.assertIn("'W-29': 'v0.3.4 / 2026-11-08'", js)   # v0.15: 画面の版も 聞き役の 指示の文（listener.txt 1 行目）と 同じ 版・日に 揃える
         self.assertEqual(len(re.findall(r"seat-toggle", js)), 1)
         self.assertRegex(js, r"seat-toggle'?, W\['W-172'\]|'linkbtn body-size seat-toggle', W\['W-172'\]")
         self.assertIn("aria-pressed", js)

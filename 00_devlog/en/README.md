@@ -15,6 +15,8 @@ The Japanese originals are in [`../ja/`](../ja/).
 | [2026-11-03](2026-11-03.md) | The day the design was written and walked back three steps — a tag promoted, a clock guessed at, "improvement" replaced by "change" |
 | [2026-11-04](2026-11-04.md) | The day it got its name and a hole was found in the gate — a word whose meaning reverses, a hole in the publishing gate, both before any code |
 | [2026-11-05](2026-11-05.md) | The day a judgment was cut in two and an intention nobody stated was added — the record did what the tool forbids |
+| [2026-11-06](2026-11-06.md) | The day "written down" and "checked" turned out to be different — two of five numbers survived, and a ban with no reason was opened |
+| [2026-11-07](2026-11-07.md) | The day there were two copies, and the wrong one was measured — the right procedure, aimed at the wrong thing |
 
 > This directory is part of **Constitutional Input Prompt**.
 > See the repository [README](../../README.md).

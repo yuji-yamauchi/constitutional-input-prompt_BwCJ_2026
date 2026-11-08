@@ -35,13 +35,13 @@ KNOWN_ARRANGER_SHA16 = "5b9c2cdcae8b5954"
 KNOWN_READER_SHA16 = "a81ac3e7595c38c2"
 KNOWN_PROMPT_SHA256 = {
     "reader": "c9f8adfbe844da466dae602154cd18395e23822f31b70f0ade8ab14c8c322ea0",
-    "listener": "657ea00af0c915d396ba3053fe36f2fc648fc197ec91ac89ab45e89b2ce03b56",
+    "listener": "d6e318da8238034cda1b647c4dab29026b23715a65f85571a8f59a0978760352",   # v0.14: 「問いの 向き」「きょうの こと」の 2 節を 外した 本文の 指紋（画面から 届かない 物を 約束に 書かない）
     "arranger": "b49673ecbd5ba8e414b366f07de25c46f86894bac24c1bbe2e3432582b4f743f",
 }
-# 役ごとの 版の字（聞き役だけ v0.3.3 に上がった）
+# 役ごとの 版の字（聞き役だけ v0.3.3 → v0.3.4 に上がった。v0.14: 2 節を 外した）
 PROMPT_HEADER = {
     "reader": ("v0.3.1", "2026-11-05"),
-    "listener": ("v0.3.3", "2026-11-06"),
+    "listener": ("v0.3.4", "2026-11-08"),
     "arranger": ("v0.3.1", "2026-11-05"),
 }
 
