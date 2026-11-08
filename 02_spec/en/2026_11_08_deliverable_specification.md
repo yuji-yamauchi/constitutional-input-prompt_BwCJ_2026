@@ -33,7 +33,7 @@ no stages, no assessment of condition.
 |---|---|---|
 | Tracked files | **95** | `git ls-files app_src`, with `__pycache__` removed |
 | Lines | **16,246** | Sum of lines across the `.py` `.js` `.css` `.html` `.txt` `.json` `.md` files in that list |
-| Tests | **399** | Lines in the test run output, of which **202 are negative controls** |
+| Tests | **420** | Lines in the test run output, of which **208 are negative controls**; measured 2026-11-08 18:3x |
 | Dependencies | **Python 3.10 or later, and nothing else** | No `pip install`, no build step, no network call at startup |
 
 ---
@@ -54,14 +54,14 @@ app_src/
 ├ common/         contract.py httpkit.py ids.py vector.py words.py
 ├ demo/           demo material (all self-made; the people are invented)
 ├ tools/          scan_leaks / scan_words / scan_network / record_demo / unpack_demo
-└ tests/          14 test files, 399 tests
+└ tests/          18 test files, 420 tests
 ```
 
 ### One file per role, for the instructions given to Claude
 
 | File | Role | Lines |
 |---|---|---|
-| `listener.txt` | **The listener** — asks a question, nothing more. Does not rewrite | 26 |
+| `listener.txt` | **The listener** — asks a question, nothing more. Does not rewrite | 17 |
 | `reader.txt` | **The reader** — reads text out of a photograph | 14 |
 | `arranger.txt` | **The arranger** — lays out what the person wants now | 21 |
 

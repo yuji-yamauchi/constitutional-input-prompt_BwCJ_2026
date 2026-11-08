@@ -30,7 +30,7 @@
 |---|---|---|
 | 追跡ファイル | **95 本** | `git ls-files app_src` から `__pycache__` を除いて数えた |
 | 行数 | **16,246 行** | 同じ一覧の `.py` `.js` `.css` `.html` `.txt` `.json` `.md` の行数の合計 |
-| 検査 | **399 本** | 検査の実行結果の行数（うち**陰性対照 202 本**） |
+| 検査 | **420 本** | 検査の実行結果の行数（うち**陰性対照 208 本**）・2026-11-08 18:3x の実測 |
 | 依存 | **Python 3.10 以上だけ** | `pip install` 無し・ビルド無し・起動時の通信 無し |
 
 ---
@@ -51,14 +51,14 @@ app_src/
 ├ common/         contract.py httpkit.py ids.py vector.py words.py
 ├ demo/           デモ素材（すべて自作・架空の人物）
 ├ tools/          scan_leaks / scan_words / scan_network / record_demo / unpack_demo
-└ tests/          検査 14 ファイル・399 本
+└ tests/          検査 18 ファイル・420 本
 ```
 
 ### 役ごとの指示文は「ファイル 1 本 = 1 役」
 
 | ファイル | 役 | 行 |
 |---|---|---|
-| `listener.txt` | **聞き役** — 問いを返すだけ。書きかえない | 26 |
+| `listener.txt` | **聞き役** — 問いを返すだけ。書きかえない | 17 |
 | `reader.txt` | **読み役** — 写真から字を読む | 14 |
 | `arranger.txt` | **まとめ役** — いまののぞみを並べる | 21 |
 
